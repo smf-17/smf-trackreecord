@@ -8,7 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -1285,7 +1284,6 @@ function saveTrade() {
 function del(id) {
   if (!confirm('Supprimer ce trade ?')) return;
   fsDeleteTrade(id);
-  fsStorageRef(id).delete().catch(function(){});
   fsPhotosRef().doc(String(id)).delete().catch(function(){});
   delete IMG_CACHE[id];
   T = T.filter(function(t){ return t.id !== id; });
@@ -1294,7 +1292,6 @@ function del(id) {
 function delH(id) {
   if (!confirm('Supprimer ce trade ?')) return;
   fsDeleteTrade(id);
-  fsStorageRef(id).delete().catch(function(){});
   fsPhotosRef().doc(String(id)).delete().catch(function(){});
   delete IMG_CACHE[id];
   T = T.filter(function(t){ return t.id !== id; });
@@ -2290,7 +2287,7 @@ var IMG_PENDING_B64 = null;
 
 function hasImg(id) {
   var c = IMG_CACHE[id];
-  return !!(c && (c.url || c.cmt));
+  return !!(c && (c.b64 || c.cmt));
 }
 
 function openImgModal(tradeId) {
@@ -2301,19 +2298,19 @@ function openImgModal(tradeId) {
   document.getElementById('img-modal-badge').textContent = badge;
 
   var cached   = IMG_CACHE[tradeId] || {};
-  var savedUrl = cached.url || null;
+  var savedB64 = cached.b64 || null;
   var savedCmt = cached.cmt || '';
 
   document.getElementById('img-comment').value = savedCmt;
 
-  if (savedUrl) {
-    IMG_PENDING_B64 = savedUrl;
-    showImgPreview(savedUrl);
+  if (savedB64) {
+    IMG_PENDING_B64 = savedB64;
+    showImgPreview(savedB64);
   } else {
     hideImgPreview();
   }
-  document.getElementById('img-btn-open-tab').style.display = savedUrl ? 'inline-block' : 'none';
-  document.getElementById('img-btn-del').style.display      = (savedUrl||savedCmt) ? 'inline-block' : 'none';
+  document.getElementById('img-btn-open-tab').style.display = savedB64 ? 'inline-block' : 'none';
+  document.getElementById('img-btn-del').style.display      = (savedB64||savedCmt) ? 'inline-block' : 'none';
   document.getElementById('img-ovl').classList.add('show');
 }
 
@@ -2379,43 +2376,38 @@ function imgLoadFile(file) {
 function saveImgModal() {
   if (IMG_TRADE_ID === null) return;
   var cmt = document.getElementById('img-comment').value.trim();
-
   if (isDemo()) { closeImgModal(); return; }
 
   var isNewImg = IMG_PENDING_B64 && IMG_PENDING_B64.startsWith('data:');
   toast('⟳ Sauvegarde en cours...', false, 'info');
 
-  var doSave = function(url) {
+  var doSave = function(b64) {
     var data = { cmt: cmt };
-    if (url) data.url = url;
-    else if (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].url) data.url = IMG_CACHE[IMG_TRADE_ID].url;
-    return fsPhotosRef().doc(String(IMG_TRADE_ID)).set(data).then(function(){
+    if (b64) data.b64 = b64;
+    else if (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].b64) data.b64 = IMG_CACHE[IMG_TRADE_ID].b64;
+    fsPhotosRef().doc(String(IMG_TRADE_ID)).set(data).then(function(){
       IMG_CACHE[IMG_TRADE_ID] = data;
-      document.getElementById('img-btn-open-tab').style.display = data.url ? 'inline-block' : 'none';
-      document.getElementById('img-btn-del').style.display      = (data.url||cmt) ? 'inline-block' : 'none';
+      var hasData = !!(data.b64 || cmt);
+      document.getElementById('img-btn-open-tab').style.display = data.b64 ? 'inline-block' : 'none';
+      document.getElementById('img-btn-del').style.display      = hasData ? 'inline-block' : 'none';
       refreshImgButtons();
       toast('📷 Image & commentaire enregistrés !', false, 'info');
       closeImgModal();
+    }).catch(function(e){
+      console.error('Firestore photo error:', e);
+      toast('⚠ Erreur sauvegarde image.', true);
     });
   };
 
   if (isNewImg) {
-    var blob = b64ToBlob(IMG_PENDING_B64);
-    fsStorageRef(IMG_TRADE_ID).put(blob).then(function(snap){
-      return snap.ref.getDownloadURL();
-    }).then(function(url){
-      return doSave(url);
-    }).catch(function(e){
-      console.error('Storage upload error:', e);
-      toast('⚠ Erreur upload image.', true);
-    });
+    compressImg(IMG_PENDING_B64, doSave);
   } else {
     doSave(null);
   }
 }
 
 function openImgNewTab() {
-  var src = IMG_PENDING_B64 || (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].url) || null;
+  var src = IMG_PENDING_B64 || (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].b64) || null;
   var cmt = (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].cmt) || '';
   var t   = T.find(function(x){ return x.id === IMG_TRADE_ID; });
   var info = t ? (t.pair+' · '+(t.date||'')+' · '+(t.dir||'')+(t.amount!==null?' · '+(t.amount>=0?'+':'')+t.amount.toFixed(2)+'$':'')) : '';
@@ -2441,7 +2433,6 @@ function openImgNewTab() {
 function deleteImgData() {
   if (!confirm('Supprimer l\'image et le commentaire de ce trade ?')) return;
   if (IMG_TRADE_ID !== null && !isDemo()) {
-    fsStorageRef(IMG_TRADE_ID).delete().catch(function(){});
     fsPhotosRef().doc(String(IMG_TRADE_ID)).delete().catch(function(){});
     delete IMG_CACHE[IMG_TRADE_ID];
   }
@@ -2677,16 +2668,30 @@ var firebaseConfig = {
   appId: "1:567813195919:web:cb80c21791166ddd10c8fa"
 };
 firebase.initializeApp(firebaseConfig);
-var db      = firebase.firestore();
-var storage = firebase.storage();
+var db = firebase.firestore();
 
 function fsTradesRef()         { return db.collection('smf_recorder').doc(CURRENT_USER).collection('trades'); }
 function fsCfgRef()            { return db.collection('smf_recorder').doc(CURRENT_USER); }
 function fsPhotosRef()         { return db.collection('smf_recorder').doc(CURRENT_USER).collection('photos'); }
-function fsStorageRef(tradeId) { return storage.ref('images/' + CURRENT_USER + '/' + String(tradeId)); }
 
-// Cache local des photos { tradeId: { url, cmt } }
+// Cache local des photos { tradeId: { b64, cmt } }
 var IMG_CACHE = {};
+
+// Compression image avant stockage Firestore (max ~800Ko)
+function compressImg(b64, callback) {
+  var img = new Image();
+  img.onload = function() {
+    var canvas = document.createElement('canvas');
+    var MAX = 1200;
+    var w = img.width, h = img.height;
+    if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+    if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(canvas.toDataURL('image/jpeg', 0.75));
+  };
+  img.src = b64;
+}
 
 function b64ToBlob(b64) {
   var parts = b64.split(',');
@@ -2707,30 +2712,33 @@ function fsDeleteTrade(id){
 }
 function fsClearAll(){
   if(isDemo()||!CURRENT_USER) return;
-  // Delete trades
   fsTradesRef().get().then(function(snap){
     var batch = db.batch();
     snap.forEach(function(d){ batch.delete(d.ref); });
     return batch.commit();
   });
-  // Delete photos from Firestore + Storage
   fsPhotosRef().get().then(function(snap){
     var batch = db.batch();
-    snap.forEach(function(d){
-      batch.delete(d.ref);
-      try { fsStorageRef(d.id).delete(); } catch(e){}
-    });
+    snap.forEach(function(d){ batch.delete(d.ref); });
     return batch.commit();
   });
   IMG_CACHE = {};
 }
 var SESSION_KEY = 'smf_auth_v1';
 
+// Auth state en mémoire (fonctionne aussi en file://)
+var AUTH_STATE = { logged: false, user: '', role: '' };
+
 function checkSession(){
-  if(sessionStorage.getItem(SESSION_KEY) === '1'){
-    CURRENT_USER = sessionStorage.getItem('smf_user') || '';
-    return true;
-  }
+  if(AUTH_STATE.logged){ CURRENT_USER = AUTH_STATE.user; return true; }
+  // Fallback sessionStorage si disponible
+  try {
+    if(sessionStorage.getItem(SESSION_KEY) === '1'){
+      CURRENT_USER = sessionStorage.getItem('smf_user') || '';
+      AUTH_STATE = { logged:true, user:CURRENT_USER, role: sessionStorage.getItem('smf_role')||'' };
+      return true;
+    }
+  } catch(e){}
   return false;
 }
 
@@ -2741,9 +2749,12 @@ function doLogin(){
   var match = ADMINS.find(function(a){return u===a.user && p===a.pass;});
   if(match){
     CURRENT_USER = match.user;
-    sessionStorage.setItem(SESSION_KEY,'1');
-    sessionStorage.setItem('smf_user', match.user);
-    sessionStorage.setItem('smf_role', match.role);
+    AUTH_STATE = { logged:true, user:match.user, role:match.role };
+    try {
+      sessionStorage.setItem(SESSION_KEY,'1');
+      sessionStorage.setItem('smf_user', match.user);
+      sessionStorage.setItem('smf_role', match.role);
+    } catch(e){}
     document.getElementById('login-screen').classList.add('hidden');
     err.classList.remove('show');
     document.getElementById('hdr-d').textContent=
@@ -2765,9 +2776,12 @@ function doLogin(){
 
 function doLogout(){
   saveUserData();
-  sessionStorage.removeItem(SESSION_KEY);
-  sessionStorage.removeItem('smf_user');
-  sessionStorage.removeItem('smf_role');
+  AUTH_STATE = { logged:false, user:'', role:'' };
+  try {
+    sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem('smf_user');
+    sessionStorage.removeItem('smf_role');
+  } catch(e){}
   CURRENT_USER = '';
   T = [];
   document.getElementById('l-user').value='';
@@ -2776,7 +2790,7 @@ function doLogout(){
   setTimeout(function(){document.getElementById('l-user').focus();},100);
 }
 
-function isDemo(){ return sessionStorage.getItem('smf_role')==='demo'; }
+function isDemo(){ return AUTH_STATE.role === 'demo'; }
 
 function userKey(base){ return base+'_'+CURRENT_USER; }
 
@@ -2823,7 +2837,7 @@ function saveUserData(){ /* Firestore sync per operation — nothing to do */ }
 
 function applyUserUI(){
   var user = CURRENT_USER;
-  var role = sessionStorage.getItem('smf_role');
+  var role = AUTH_STATE.role;
   // Badge utilisateur
   var badge = document.getElementById('hdr-user-badge');
   if(badge){ badge.textContent = user; badge.style.color = role==='demo'?'var(--gold)':'var(--green)'; }
