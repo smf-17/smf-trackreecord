@@ -8,7 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -90,6 +89,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .nb.on{color:var(--green);border-bottom-color:var(--green);text-shadow:0 0 10px var(--green),0 0 20px rgba(0,255,0,.4)}
 .nb-icon{font-size:11px;opacity:.7}
 .hdrr{margin-left:auto;display:flex;align-items:center;gap:10px}
+@keyframes syncPulse{0%,100%{opacity:1}50%{opacity:.3}}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--green);
   box-shadow:0 0 8px var(--green),0 0 16px rgba(0,255,0,.5);animation:bk 2s infinite}
 .tc{background:#030803;border:1px solid rgba(0,255,0,.2);border-radius:20px;
@@ -512,60 +512,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .sq{width:12px;height:12px;border-radius:2px;cursor:default}
 .sq.w{background:var(--green);box-shadow:0 0 4px rgba(0,255,0,.4)}.sq.l{background:var(--red);box-shadow:0 0 4px rgba(255,0,0,.3)}.sq.o{background:var(--blue)}
 
-/* ─── IMAGE MODAL ─── */
-#img-ovl{position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.95);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center}
-#img-ovl.show{display:flex}
-#img-modal{background:linear-gradient(180deg,#020502 0%,#000 100%);
-  border:1px solid rgba(0,255,0,.2);border-top:2px solid var(--green);border-radius:8px;
-  width:min(620px,95vw);max-height:90vh;overflow-y:auto;
-  box-shadow:0 0 40px rgba(0,255,0,.1),0 20px 60px rgba(0,0,0,.8);animation:flashIn .25s cubic-bezier(.4,0,.2,1)}
-.img-modal-hdr{padding:18px 22px 14px;border-bottom:1px solid rgba(0,255,0,.08);display:flex;align-items:center;gap:10px}
-.img-modal-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--white);flex:1}
-.img-modal-badge{font-size:8px;padding:3px 10px;border-radius:20px;
-  background:rgba(0,255,0,.08);border:1px solid rgba(0,255,0,.25);color:var(--green);
-  font-weight:700;letter-spacing:.07em;text-transform:uppercase}
-.img-modal-close{background:#030803;border:1px solid rgba(0,255,0,.15);color:var(--mid);
-  width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:14px;
-  display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
-.img-modal-close:hover{border-color:var(--red);color:var(--red)}
-.img-modal-body{padding:20px 22px 24px;display:flex;flex-direction:column;gap:16px}
-.img-drop-zone{border:2px dashed rgba(0,255,0,.2);border-radius:6px;padding:28px 20px;
-  text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;background:#030803}
-.img-drop-zone:hover,.img-drop-zone.drag-over{border-color:var(--green);background:rgba(0,255,0,.04);box-shadow:0 0 20px rgba(0,255,0,.08)}
-.img-drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.img-drop-icon{font-size:28px;margin-bottom:8px;opacity:.4}
-.img-drop-txt{font-size:10px;color:var(--mid);font-weight:600}
-.img-drop-sub{font-size:8.5px;color:var(--dim);margin-top:4px}
-.img-preview-wrap{position:relative;border-radius:6px;overflow:hidden;border:1px solid rgba(0,255,0,.15);background:#040d04}
-.img-preview-wrap img{width:100%;max-height:320px;object-fit:contain;display:block}
-.img-preview-remove{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.8);
-  border:1px solid rgba(0,255,0,.15);color:var(--red);width:26px;height:26px;border-radius:50%;
-  cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.img-preview-remove:hover{background:var(--red2);border-color:var(--red)}
-.img-comment-label{font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(0,255,0,.4);font-weight:700;margin-bottom:6px}
-.img-comment-input{width:100%;background:#030803;border:1px solid rgba(0,255,0,.1);border-radius:var(--radius);
-  color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;
-  padding:10px 12px;outline:none;resize:vertical;min-height:72px;transition:border-color .15s}
-.img-comment-input:focus{border-color:var(--green);background:#000;box-shadow:0 0 10px rgba(0,255,0,.15)}
-.img-comment-input::placeholder{color:var(--dim);font-size:10px}
-.img-modal-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.img-btn-save{background:linear-gradient(135deg,var(--green),#00cc00);color:#000;
-  border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;
-  font-size:10px;font-weight:700;padding:9px 20px;cursor:pointer;transition:all .2s;
-  box-shadow:0 0 12px rgba(0,255,0,.3)}
-.img-btn-save:hover{box-shadow:0 0 25px rgba(0,255,0,.6);transform:translateY(-1px)}
-.img-btn-open{background:transparent;border:1px solid var(--blue);color:var(--blue);
-  border-radius:var(--radius);font-family:'JetBrains Mono',monospace;
-  font-size:10px;font-weight:700;padding:9px 20px;cursor:pointer;transition:all .15s}
-.img-btn-open:hover{background:rgba(0,204,255,.1);box-shadow:0 0 10px rgba(0,204,255,.2)}
-.img-btn-del{background:transparent;border:1px solid rgba(255,0,0,.25);color:var(--red);
-  border-radius:var(--radius);font-family:'JetBrains Mono',monospace;
-  font-size:10px;font-weight:600;padding:9px 16px;cursor:pointer;transition:all .15s;margin-left:auto}
-.img-btn-del:hover{background:var(--red2);border-color:var(--red);box-shadow:0 0 10px rgba(255,0,0,.2)}
-.bc{background:transparent;border:1px solid rgba(0,255,0,.15);color:rgba(0,255,0,.6);
-  font-family:'JetBrains Mono',monospace;font-size:9px;padding:3px 7px;border-radius:3px;cursor:pointer;transition:all .15s}
-.bc:hover{background:rgba(0,255,0,.08);border-color:var(--green);box-shadow:0 0 6px rgba(0,255,0,.2)}
-.bc.has-img{background:rgba(0,255,0,.08);border-color:var(--green);color:var(--green)}
+
 
 /* ─── LOGIN SCREEN ─── */
 #login-screen{
@@ -753,6 +700,10 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
   <div class="hdrr">
     <div class="dot"></div>
     <div class="tc"><span id="hdr-tc">0</span> trades</div>
+    <div class="tc" id="sync-indicator" style="border-color:rgba(0,255,0,.15);display:flex;align-items:center;gap:6px;cursor:default" title="Statut de synchronisation cloud">
+      <span id="sync-dot" style="width:6px;height:6px;border-radius:50%;background:#666;flex-shrink:0;transition:all .4s"></span>
+      <span id="sync-lbl" style="font-size:8px;color:#666;transition:color .4s">—</span>
+    </div>
     <div class="tc" style="border-color:rgba(0,255,0,.15)"><span id="hdr-user-badge" style="color:var(--green);font-weight:700"></span></div>
     <button id="btn-vider" class="btn-reset" onclick="clearAll()" title="Effacer toutes les données">↺ Vider</button>
     <button id="btn-demo" class="btn-reset" onclick="resetData()" title="Charger les données de démo" style="border-color:rgba(201,168,76,.3);color:var(--gold)">⊞ Démo</button>
@@ -1141,42 +1092,6 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 </div>
 
 <!-- ═══ IMAGE MODAL ═══ -->
-<div id="img-ovl" onclick="imgOvlClick(event)">
-  <div id="img-modal">
-    <div class="img-modal-hdr">
-      <div class="img-modal-title">📷 Photo du Trade</div>
-      <span class="img-modal-badge" id="img-modal-badge">—</span>
-      <button class="img-modal-close" onclick="closeImgModal()">✕</button>
-    </div>
-    <div class="img-modal-body">
-      <!-- Drop zone (caché si preview) -->
-      <div class="img-drop-zone" id="img-drop-zone"
-           ondragover="imgDragOver(event)" ondragleave="imgDragLeave(event)" ondrop="imgDrop(event)">
-        <input type="file" accept="image/*" id="img-file-input" onchange="imgFileChosen(event)"/>
-        <div class="img-drop-icon">🖼</div>
-        <div class="img-drop-txt">Cliquer ou glisser une image</div>
-        <div class="img-drop-sub">PNG, JPG, GIF, WEBP — max 4 Mo</div>
-      </div>
-      <!-- Preview (caché si pas d'image) -->
-      <div class="img-preview-wrap" id="img-preview-wrap" style="display:none">
-        <img id="img-preview" src="" alt="Preview"/>
-        <button class="img-preview-remove" onclick="imgRemovePreview()" title="Supprimer l'image">✕</button>
-      </div>
-      <!-- Commentaire -->
-      <div>
-        <div class="img-comment-label">Commentaire / Analyse</div>
-        <textarea class="img-comment-input" id="img-comment" placeholder="Setup ICT, confluence, erreur à éviter, leçon retenue..."></textarea>
-      </div>
-      <!-- Actions -->
-      <div class="img-modal-actions">
-        <button class="img-btn-save" onclick="saveImgModal()">💾 Enregistrer</button>
-        <button class="img-btn-open" id="img-btn-open-tab" onclick="openImgNewTab()" style="display:none">↗ Ouvrir dans un nouvel onglet</button>
-        <button class="img-btn-del" id="img-btn-del" onclick="deleteImgData()" style="display:none">🗑 Supprimer</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div id="toast"></div>
 
 <script>
@@ -1455,18 +1370,12 @@ function saveTrade() {
 function del(id) {
   if (!confirm('Supprimer ce trade ?')) return;
   fsDeleteTrade(id);
-  fsStorageRef(id).delete().catch(function(){});
-  fsPhotosRef().doc(String(id)).delete().catch(function(){});
-  delete IMG_CACHE[id];
   T = T.filter(function(t){ return t.id !== id; });
   save(); renderXLS(); toast('Supprimé.');
 }
 function delH(id) {
   if (!confirm('Supprimer ce trade ?')) return;
   fsDeleteTrade(id);
-  fsStorageRef(id).delete().catch(function(){});
-  fsPhotosRef().doc(String(id)).delete().catch(function(){});
-  delete IMG_CACHE[id];
   T = T.filter(function(t){ return t.id !== id; });
   save(); renderHist(); renderXLS(); toast('Supprimé.');
 }
@@ -1474,6 +1383,47 @@ function delH(id) {
 // ── SAVE ──
 function save() {
   document.getElementById('hdr-tc').textContent = T.length;
+  if(!FIREBASE_OK || !db){
+    // Mode hors-ligne : localStorage uniquement
+    try {
+      localStorage.setItem(userKey('smf_t'),   JSON.stringify(T));
+      localStorage.setItem(userKey('smf_cfg'), JSON.stringify(CFG));
+    } catch(e){ console.warn('localStorage save error:', e); }
+    setSyncStatus('offline');
+  } else {
+    setSyncStatus('syncing');
+  }
+}
+
+// ── INDICATEUR DE SYNC ──
+var _syncTimer = null;
+function setSyncStatus(state) {
+  var dot = document.getElementById('sync-dot');
+  var lbl = document.getElementById('sync-lbl');
+  if (!dot || !lbl) return;
+  if (state === 'ok') {
+    dot.style.background = 'var(--green)';
+    dot.style.boxShadow  = '0 0 8px var(--green)';
+    lbl.textContent = 'Cloud';
+    lbl.style.color = 'var(--green)';
+  } else if (state === 'syncing') {
+    dot.style.background = 'var(--gold)';
+    dot.style.boxShadow  = '0 0 8px var(--gold)';
+    lbl.textContent = '...';
+    lbl.style.color = 'var(--gold)';
+    clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(function(){ setSyncStatus('ok'); }, 1200);
+  } else if (state === 'error') {
+    dot.style.background = 'var(--red)';
+    dot.style.boxShadow  = '0 0 8px var(--red)';
+    lbl.textContent = 'Erreur';
+    lbl.style.color = 'var(--red)';
+  } else { // offline / local
+    dot.style.background = '#666';
+    dot.style.boxShadow  = 'none';
+    lbl.textContent = 'Local';
+    lbl.style.color = '#666';
+  }
 }
 
 // ── XLS YEAR ──
@@ -1485,7 +1435,19 @@ function adjXYr(d) { XYR += d; renderXLS(); }
 var CFG = {};
 function saveCFG() {
   if(isDemo()||!CURRENT_USER) return;
-  fsCfgRef().set({cfg: CFG}, {merge: true}).catch(function(e){ console.error('FS cfg error:',e); });
+  if(!FIREBASE_OK || !db){
+    try { localStorage.setItem(userKey('smf_cfg'), JSON.stringify(CFG)); } catch(e){}
+    setSyncStatus('offline');
+    return;
+  }
+  setSyncStatus('syncing');
+  fsCfgRef().set({cfg: CFG}, {merge: true}).then(function(){
+    setSyncStatus('ok');
+  }).catch(function(e){
+    console.error('FS cfg error:',e);
+    setSyncStatus('error');
+    try { localStorage.setItem(userKey('smf_cfg'), JSON.stringify(CFG)); } catch(e2){}
+  });
 }
 function getCFG(moKey) { return CFG[moKey] || {bal:null, risk:null}; }
 
@@ -1873,7 +1835,7 @@ function openInpDrawer(mo) {
     html += '<td class="'+pctCls+'">'+pctFmt+'</td>';                                              // L
     html += '<td class="'+ddCls+'">'+ddFmt+'</td>';                                                 // M
     html += '<td class="'+cumPctCls+'" style="font-weight:700">'+cumPctFmt+'</td>';                 // N
-    html += '<td><div class="act-cell"><button class="be" onclick="openEdit('+t.id+',\''+moKey+'\')">✎</button><button class="bc'+(hasImg(t.id)?' has-img':'')+'" data-tid="'+t.id+'" onclick="openImgModal('+t.id+')" title="'+(hasImg(t.id)?'📷 Voir/modifier image':'📷 Ajouter une image')+'">📷</button><button class="bd" onclick="delFromDrawer('+t.id+')">✕</button></div></td>';
+    html += '<td><div class="act-cell"><button class="be" onclick="openEdit('+t.id+',\''+moKey+'\')">✎</button><button class="bd" onclick="delFromDrawer('+t.id+')">✕</button></div></td>';
     html += '</tr>';
   }
   // Ligne de saisie inline permanente
@@ -2009,7 +1971,9 @@ function submitInlineRow(mo) {
     return;
   }
   var sts = amount !== null ? (amount > 0 ? 'WIN' : amount < 0 ? 'LOSS' : 'OPEN') : 'OPEN';
-  T.push({ id:Date.now(), date:date, dateEnd:dateEnd, pair:pair, dir:dir, orderType:ot, lots:(!isNaN(lots)?lots:null), amount:amount, sts:sts, notes:'' });
+  var newTrade = { id:Date.now(), date:date, dateEnd:dateEnd, pair:pair, dir:dir, orderType:ot, lots:(!isNaN(lots)?lots:null), amount:amount, sts:sts, notes:'' };
+  T.push(newTrade);
+  fsSaveTrade(newTrade);
   save();
   // Ouvrir le drawer du mois correspondant à la date saisie
   var tradeMo = date ? parseInt(date.substring(5,7)) - 1 : mo;
@@ -2113,7 +2077,7 @@ function renderHist() {
       '<td>'+(t.dateEnd||'—')+'</td>'+
       '<td class="'+sC+'">'+sL+'</td>'+
       '<td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;color:var(--dim)">'+(t.notes||'—')+'</td>'+
-      '<td><div class="act-cell"><button class="be" onclick="openEdit('+t.id+')">✎</button><button class="bc'+(hasImg(t.id)?' has-img':'')+'" data-tid="'+t.id+'" onclick="openImgModal('+t.id+')" title="'+(hasImg(t.id)?'📷 Voir/modifier image':'📷 Ajouter une image')+'">📷</button><button class="bd" onclick="delH('+t.id+')">✕</button></div></td></tr>';
+      '<td><div class="act-cell"><button class="be" onclick="openEdit('+t.id+')">✎</button><button class="bd" onclick="delH('+t.id+')">✕</button></div></td></tr>';
   }).join(''):'<tr><td colspan="10"><div class="empty"><div class="ei">🔍</div><p>Aucun résultat.</p></div></td></tr>';
 }
 function exportCSV() {
@@ -2528,184 +2492,6 @@ function renderAnnual(){
   ch5.data.datasets[0].backgroundColor=annV.map(function(v){return v>=0?'rgba(46,204,138,.7)':'rgba(224,92,106,.7)';});
   ch5.update();
 }
-// ── IMAGE SYSTEM ──
-var IMG_TRADE_ID    = null;
-var IMG_PENDING_B64 = null;
-
-function hasImg(id) {
-  var c = IMG_CACHE[id];
-  return !!(c && (c.url || c.cmt));
-}
-
-function openImgModal(tradeId) {
-  IMG_TRADE_ID    = tradeId;
-  IMG_PENDING_B64 = null;
-  var t     = T.find(function(x){ return x.id === tradeId; });
-  var badge = t ? t.pair + ' · ' + (t.date||'') : '#'+tradeId;
-  document.getElementById('img-modal-badge').textContent = badge;
-
-  var cached   = IMG_CACHE[tradeId] || {};
-  var savedUrl = cached.url || null;
-  var savedCmt = cached.cmt || '';
-
-  document.getElementById('img-comment').value = savedCmt;
-
-  if (savedUrl) {
-    IMG_PENDING_B64 = savedUrl;
-    showImgPreview(savedUrl);
-  } else {
-    hideImgPreview();
-  }
-  document.getElementById('img-btn-open-tab').style.display = savedUrl ? 'inline-block' : 'none';
-  document.getElementById('img-btn-del').style.display      = (savedUrl||savedCmt) ? 'inline-block' : 'none';
-  document.getElementById('img-ovl').classList.add('show');
-}
-
-function closeImgModal() {
-  document.getElementById('img-ovl').classList.remove('show');
-  IMG_TRADE_ID    = null;
-  IMG_PENDING_B64 = null;
-  var fi = document.getElementById('img-file-input');
-  if (fi) fi.value = '';
-}
-
-function imgOvlClick(e) {
-  if (e.target === document.getElementById('img-ovl')) closeImgModal();
-}
-
-function showImgPreview(src) {
-  document.getElementById('img-preview').src             = src;
-  document.getElementById('img-preview-wrap').style.display = 'block';
-  document.getElementById('img-drop-zone').style.display    = 'none';
-}
-
-function hideImgPreview() {
-  document.getElementById('img-preview').src             = '';
-  document.getElementById('img-preview-wrap').style.display = 'none';
-  document.getElementById('img-drop-zone').style.display    = 'block';
-}
-
-function imgRemovePreview() {
-  IMG_PENDING_B64 = null;
-  hideImgPreview();
-}
-
-function imgFileChosen(e) {
-  var file = e.target.files[0];
-  if (!file) return;
-  imgLoadFile(file);
-}
-
-function imgDragOver(e) {
-  e.preventDefault();
-  document.getElementById('img-drop-zone').classList.add('drag-over');
-}
-function imgDragLeave() {
-  document.getElementById('img-drop-zone').classList.remove('drag-over');
-}
-function imgDrop(e) {
-  e.preventDefault();
-  document.getElementById('img-drop-zone').classList.remove('drag-over');
-  var file = e.dataTransfer && e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) imgLoadFile(file);
-}
-
-function imgLoadFile(file) {
-  if (file.size > 4 * 1024 * 1024) { toast('Image trop lourde (max 4 Mo).', true); return; }
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    IMG_PENDING_B64 = ev.target.result; // local base64 pour preview
-    showImgPreview(IMG_PENDING_B64);
-  };
-  reader.readAsDataURL(file);
-}
-
-function saveImgModal() {
-  if (IMG_TRADE_ID === null) return;
-  var cmt = document.getElementById('img-comment').value.trim();
-
-  if (isDemo()) { closeImgModal(); return; }
-
-  var isNewImg = IMG_PENDING_B64 && IMG_PENDING_B64.startsWith('data:');
-  toast('⟳ Sauvegarde en cours...', false, 'info');
-
-  var doSave = function(url) {
-    var data = { cmt: cmt };
-    if (url) data.url = url;
-    else if (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].url) data.url = IMG_CACHE[IMG_TRADE_ID].url;
-    return fsPhotosRef().doc(String(IMG_TRADE_ID)).set(data).then(function(){
-      IMG_CACHE[IMG_TRADE_ID] = data;
-      document.getElementById('img-btn-open-tab').style.display = data.url ? 'inline-block' : 'none';
-      document.getElementById('img-btn-del').style.display      = (data.url||cmt) ? 'inline-block' : 'none';
-      refreshImgButtons();
-      toast('📷 Image & commentaire enregistrés !', false, 'info');
-      closeImgModal();
-    });
-  };
-
-  if (isNewImg) {
-    var blob = b64ToBlob(IMG_PENDING_B64);
-    fsStorageRef(IMG_TRADE_ID).put(blob).then(function(snap){
-      return snap.ref.getDownloadURL();
-    }).then(function(url){
-      return doSave(url);
-    }).catch(function(e){
-      console.error('Storage upload error:', e);
-      toast('⚠ Erreur upload image.', true);
-    });
-  } else {
-    doSave(null);
-  }
-}
-
-function openImgNewTab() {
-  var src = IMG_PENDING_B64 || (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].url) || null;
-  var cmt = (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].cmt) || '';
-  var t   = T.find(function(x){ return x.id === IMG_TRADE_ID; });
-  var info = t ? (t.pair+' · '+(t.date||'')+' · '+(t.dir||'')+(t.amount!==null?' · '+(t.amount>=0?'+':'')+t.amount.toFixed(2)+'$':'')) : '';
-  if (!src) { toast('Aucune image à ouvrir.', true); return; }
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Trade '+IMG_TRADE_ID+'</title>'
-    +'<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#07080d;color:#d4d8f0;font-family:monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:30px 20px}'
-    +'h1{font-size:13px;letter-spacing:.1em;color:#c9a84c;margin-bottom:6px;text-transform:uppercase}'
-    +'p.info{font-size:11px;color:#7880a0;margin-bottom:20px;letter-spacing:.04em}'
-    +'img{max-width:min(1200px,100%);border-radius:6px;border:1px solid #272c45;box-shadow:0 8px 40px rgba(0,0,0,.7)}'
-    +'.cmt{margin-top:22px;max-width:min(1200px,100%);width:100%;background:#0d0f1a;border:1px solid #1e2235;border-left:3px solid #c9a84c;border-radius:6px;padding:16px 18px}'
-    +'.cmt-label{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:#4e5470;font-weight:700;margin-bottom:8px}'
-    +'.cmt-text{font-size:12px;color:#d4d8f0;line-height:1.8;white-space:pre-wrap}'
-    +'</style></head><body>'
-    +'<h1>📷 SMF Trade Recorder</h1>'
-    +'<p class="info">'+info+'</p>'
-    +'<img src="'+src+'" alt="Trade Screenshot"/>'
-    +(cmt?'<div class="cmt"><div class="cmt-label">Commentaire / Analyse</div><div class="cmt-text">'+cmt.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div></div>':'')
-    +'</body></html>';
-  var w = window.open('','_blank');
-  if (w) { w.document.write(html); w.document.close(); }
-}
-
-function deleteImgData() {
-  if (!confirm('Supprimer l\'image et le commentaire de ce trade ?')) return;
-  if (IMG_TRADE_ID !== null && !isDemo()) {
-    fsStorageRef(IMG_TRADE_ID).delete().catch(function(){});
-    fsPhotosRef().doc(String(IMG_TRADE_ID)).delete().catch(function(){});
-    delete IMG_CACHE[IMG_TRADE_ID];
-  }
-  IMG_PENDING_B64 = null;
-  hideImgPreview();
-  document.getElementById('img-comment').value = '';
-  document.getElementById('img-btn-open-tab').style.display = 'none';
-  document.getElementById('img-btn-del').style.display      = 'none';
-  refreshImgButtons();
-  toast('Image supprimée.', false, 'info');
-  closeImgModal();
-}
-
-function refreshImgButtons() {
-  document.querySelectorAll('.bc[data-tid]').forEach(function(btn) {
-    var tid = parseInt(btn.getAttribute('data-tid'));
-    if (hasImg(tid)) { btn.classList.add('has-img'); btn.title='📷 Voir/modifier image'; }
-    else             { btn.classList.remove('has-img'); btn.title='📷 Ajouter une image'; }
-  });
-}
 
 // ── TOAST ──
 function toast(msg, err, type) {
@@ -2924,7 +2710,7 @@ function fsUsersRef() { return db ? db.collection('smf_users') : null; }
 function fsUserRef(u) { return db ? db.collection('smf_users').doc(u) : null; }
 
 // ── FIREBASE ──
-var db = null, storage = null;
+var db = null;
 var FIREBASE_OK = false;
 try {
   var firebaseConfig = {
@@ -2933,11 +2719,11 @@ try {
     projectId: "smf-track-reecord",
     storageBucket: "smf-track-reecord.firebasestorage.app",
     messagingSenderId: "75923201008",
-    appId: "1:75923201008:web:fc73c62822ea4a0a3fdb35"
+    appId: "1:75923201008:web:fc73c62822ea4a0a3fdb35",
+    measurementId: "G-N3VF2QY1PM"
   };
   firebase.initializeApp(firebaseConfig);
   db      = firebase.firestore();
-  storage = firebase.storage();
   FIREBASE_OK = true;
 } catch(e) {
   console.warn('Firebase non disponible, mode localStorage activé.', e);
@@ -2945,11 +2731,6 @@ try {
 
 function fsTradesRef()         { return db.collection('smf_recorder').doc(CURRENT_USER).collection('trades'); }
 function fsCfgRef()            { return db.collection('smf_recorder').doc(CURRENT_USER); }
-function fsPhotosRef()         { return db.collection('smf_recorder').doc(CURRENT_USER).collection('photos'); }
-function fsStorageRef(tradeId) { return storage.ref('images/' + CURRENT_USER + '/' + String(tradeId)); }
-
-// Cache local des photos { tradeId: { url, cmt } }
-var IMG_CACHE = {};
 
 function b64ToBlob(b64) {
   var parts = b64.split(',');
@@ -2962,30 +2743,45 @@ function b64ToBlob(b64) {
 
 function fsSaveTrade(trade){
   if(isDemo()||!CURRENT_USER) return;
-  fsTradesRef().doc(String(trade.id)).set(trade).catch(function(e){ console.error('FS save error:',e); });
+  if(!FIREBASE_OK || !db){
+    try { localStorage.setItem(userKey('smf_t'), JSON.stringify(T)); } catch(e){}
+    setSyncStatus('offline');
+    return;
+  }
+  setSyncStatus('syncing');
+  fsTradesRef().doc(String(trade.id)).set(trade).then(function(){
+    setSyncStatus('ok');
+  }).catch(function(e){
+    console.error('FS save error:',e);
+    setSyncStatus('error');
+    try { localStorage.setItem(userKey('smf_t'), JSON.stringify(T)); } catch(e2){}
+    toast('⚠ Sync cloud échouée — données sauvées en local.', true);
+  });
 }
 function fsDeleteTrade(id){
   if(isDemo()||!CURRENT_USER) return;
-  fsTradesRef().doc(String(id)).delete().catch(function(e){ console.error('FS delete error:',e); });
+  if(!FIREBASE_OK || !db){
+    try { localStorage.setItem(userKey('smf_t'), JSON.stringify(T)); } catch(e){}
+    setSyncStatus('offline');
+    return;
+  }
+  setSyncStatus('syncing');
+  fsTradesRef().doc(String(id)).delete().then(function(){
+    setSyncStatus('ok');
+  }).catch(function(e){
+    console.error('FS delete error:',e);
+    setSyncStatus('error');
+    try { localStorage.setItem(userKey('smf_t'), JSON.stringify(T)); } catch(e2){}
+  });
 }
 function fsClearAll(){
-  if(isDemo()||!CURRENT_USER) return;
+  if(isDemo()||isUser()||!CURRENT_USER) return;
   // Delete trades
   fsTradesRef().get().then(function(snap){
     var batch = db.batch();
     snap.forEach(function(d){ batch.delete(d.ref); });
     return batch.commit();
   });
-  // Delete photos from Firestore + Storage
-  fsPhotosRef().get().then(function(snap){
-    var batch = db.batch();
-    snap.forEach(function(d){
-      batch.delete(d.ref);
-      try { fsStorageRef(d.id).delete(); } catch(e){}
-    });
-    return batch.commit();
-  });
-  IMG_CACHE = {};
 }
 var SESSION_KEY = 'smf_auth_v1';
 
@@ -3157,7 +2953,8 @@ function loadUserData(){
     document.getElementById('hdr-tc').textContent = T.length;
     XYR = new Date().getFullYear();
     renderXLS();
-    toast('⚠ Mode hors-ligne (localStorage)', true);
+    setSyncStatus('offline');
+    toast('⚠ Mode hors-ligne — configurez Firebase.', true);
     return;
   }
   toast('⟳ Chargement des données...', false, 'info');
@@ -3169,14 +2966,12 @@ function loadUserData(){
   var p2 = fsCfgRef().get().then(function(doc){
     CFG = (doc.exists && doc.data() && doc.data().cfg) ? doc.data().cfg : {};
   });
-  var p3 = fsPhotosRef().get().then(function(snap){
-    IMG_CACHE = {};
-    snap.forEach(function(d){ IMG_CACHE[parseInt(d.id)] = d.data(); });
-  });
+  var p3 = Promise.resolve();
   Promise.all([p1,p2,p3]).then(function(){
     document.getElementById('hdr-tc').textContent = T.length;
     XYR = new Date().getFullYear();
     renderXLS();
+    setSyncStatus('ok');
     toast('✓ '+ T.length +' trade(s) chargé(s)', false, 'info');
   }).catch(function(e){
     console.error('Firestore load error:',e);
@@ -3186,7 +2981,8 @@ function loadUserData(){
     document.getElementById('hdr-tc').textContent = T.length;
     XYR = new Date().getFullYear();
     renderXLS();
-    toast('⚠ Mode hors-ligne (localStorage)', true);
+    setSyncStatus('error');
+    toast('⚠ Règles Firebase à configurer — données locales chargées.', true);
   });
 }
 
@@ -3205,6 +3001,10 @@ function applyUserUI(){
   var btnVider     = document.getElementById('btn-vider');
   var btnDemo      = document.getElementById('btn-demo');
   var btnAdminPanel = document.getElementById('admin-panel-btn');
+  // Init sync indicator
+  if(FIREBASE_OK && db) setSyncStatus('syncing');
+  else setSyncStatus('offline');
+
   if(role==='admin'){
     if(btnVider)      btnVider.style.display='';
     if(btnDemo)       btnDemo.style.display='none';
