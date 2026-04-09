@@ -8,6 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -415,6 +416,47 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .inp-dwr-close:hover{border-color:var(--red);color:var(--red);box-shadow:0 0 8px rgba(255,0,0,.3)}
 .inp-dwr-body{padding:16px 20px 100px}
 
+/* ─── MODAL PRÉREQUIS ─── */
+#prereq-ovl{position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.93);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center}
+#prereq-ovl.open{display:flex}
+#prereq-box{background:#020502;border:2px solid var(--green);border-radius:10px;padding:28px 32px;width:100%;max-width:420px;position:relative;
+  box-shadow:0 0 60px rgba(0,255,0,.15),0 0 120px rgba(0,255,0,.05);animation:flashIn .3s ease-out}
+#prereq-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent);animation:zap 3s ease-in-out infinite}
+.prereq-icon{font-size:28px;margin-bottom:10px;text-align:center;filter:drop-shadow(0 0 8px rgba(0,255,0,.5))}
+.prereq-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--white);text-align:center;margin-bottom:4px}
+.prereq-month{font-size:11px;color:var(--green);text-align:center;margin-bottom:6px;font-weight:700;text-shadow:0 0 8px var(--green);letter-spacing:.1em}
+.prereq-desc{font-size:9px;color:var(--dim);text-align:center;margin-bottom:20px;line-height:1.7;letter-spacing:.04em}
+.prereq-fields{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
+.prereq-field{display:flex;flex-direction:column;gap:6px}
+.prereq-label{font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(0,255,0,.45);font-weight:700;display:flex;align-items:center;gap:6px}
+.prereq-label span{font-size:10px}
+.prereq-input{background:#030803;border:1px solid rgba(0,255,0,.2);border-radius:5px;
+  color:var(--white);font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;
+  padding:10px 14px;outline:none;width:100%;transition:border-color .15s,box-shadow .15s}
+.prereq-input:focus{border-color:var(--green);box-shadow:0 0 12px rgba(0,255,0,.25);background:#000}
+.prereq-input::placeholder{color:var(--dim);font-size:11px;font-weight:400}
+.prereq-warn{font-size:8px;color:rgba(201,168,76,.7);background:rgba(201,168,76,.06);
+  border:1px solid rgba(201,168,76,.15);border-radius:4px;padding:7px 12px;
+  margin-bottom:18px;line-height:1.6;letter-spacing:.03em;text-align:center}
+.prereq-btn{width:100%;background:linear-gradient(135deg,var(--green),#00cc00);
+  color:#000;border:none;border-radius:6px;font-family:'JetBrains Mono',monospace;
+  font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding:13px;cursor:pointer;transition:all .2s;
+  box-shadow:0 0 20px rgba(0,255,0,.4),0 2px 12px rgba(0,255,0,.3)}
+.prereq-btn:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 0 35px rgba(0,255,0,.6)}
+.prereq-err{font-size:9px;color:var(--red);text-align:center;margin-top:10px;opacity:0;transition:opacity .2s}
+.prereq-err.show{opacity:1}
+/* Champ verrouillé dans la carte mois */
+.cfg-locked-row{display:flex;align-items:center;gap:8px;padding:5px 0}
+.cfg-locked-lbl{font-size:7px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;width:52px;flex-shrink:0}
+.cfg-locked-val{font-size:11px;font-weight:700;color:var(--green);text-shadow:0 0 5px rgba(0,255,0,.3)}
+.cfg-lock-icon{font-size:9px;margin-left:auto;color:rgba(201,168,76,.6)}
+.cfg-prereq-needed{text-align:center;padding:8px 4px;font-size:8px;color:rgba(201,168,76,.6);
+  letter-spacing:.05em;border:1px dashed rgba(201,168,76,.2);border-radius:4px;cursor:pointer;
+  transition:all .15s}
+.cfg-prereq-needed:hover{border-color:rgba(201,168,76,.5);color:rgba(201,168,76,.9)}
+
 .empty{text-align:center;padding:70px 20px;color:var(--dim)}
 .empty .ei{font-size:36px;margin-bottom:12px;opacity:.3}
 .empty p{font-size:11px;line-height:1.9}
@@ -565,7 +607,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 }
 .login-title b{color:var(--green);text-shadow:0 0 8px var(--green)}
 .login-sub{font-size:8.5px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase;margin-top:4px}
-.login-field{margin-bottom:16px}
+/* Onglets */
+.login-tabs{display:flex;gap:0;margin-bottom:24px;border:1px solid rgba(0,255,0,.15);border-radius:6px;overflow:hidden}
+.login-tab{flex:1;background:transparent;border:none;color:var(--dim);font-family:'JetBrains Mono',monospace;
+  font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:9px 0;cursor:pointer;transition:all .2s}
+.login-tab.active{background:rgba(0,255,0,.1);color:var(--green);text-shadow:0 0 8px var(--green)}
+.login-tab:first-child{border-right:1px solid rgba(0,255,0,.15)}
+/* Panels */
+.login-panel{display:none}.login-panel.active{display:block}
+.login-field{margin-bottom:14px}
 .login-label{font-size:7.5px;letter-spacing:.14em;text-transform:uppercase;
   color:rgba(0,255,0,.4);font-weight:700;margin-bottom:6px;display:block}
 .login-input{
@@ -586,15 +637,34 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
   box-shadow:0 0 15px rgba(0,255,0,.4);
 }
 .login-btn:hover{box-shadow:0 0 30px rgba(0,255,0,.7);transform:translateY(-1px)}
+.login-btn.loading{opacity:.6;pointer-events:none}
 .login-err{
   background:rgba(255,0,0,.08);border:1px solid rgba(255,0,0,.25);
   border-radius:var(--radius);padding:9px 13px;
   color:var(--red);font-size:10px;text-align:center;
-  margin-top:14px;display:none;
+  margin-top:12px;display:none;
   text-shadow:0 0 6px rgba(255,0,0,.4);
 }
 .login-err.show{display:block;animation:flashIn .2s ease-out}
-.login-footer{text-align:center;margin-top:20px;font-size:8px;color:var(--dim);letter-spacing:.08em}
+.login-ok{
+  background:rgba(0,255,0,.06);border:1px solid rgba(0,255,0,.2);
+  border-radius:var(--radius);padding:9px 13px;
+  color:var(--green);font-size:10px;text-align:center;
+  margin-top:12px;display:none;text-shadow:0 0 6px rgba(0,255,0,.3);
+}
+.login-ok.show{display:block;animation:flashIn .2s ease-out}
+.login-footer{text-align:center;margin-top:18px;font-size:8px;color:var(--dim);letter-spacing:.08em}
+/* Badge rôle dans header */
+.role-badge{font-size:7px;padding:2px 7px;border-radius:10px;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;margin-left:4px;vertical-align:middle}
+.role-badge.admin{background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:var(--gold)}
+.role-badge.user{background:rgba(0,255,0,.08);border:1px solid rgba(0,255,0,.2);color:var(--green)}
+/* Panel admin */
+#admin-panel-btn{display:none}
+.admin-panel-tag{font-size:7.5px;padding:3px 9px;border-radius:3px;
+  background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);
+  color:rgba(201,168,76,.7);letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+.admin-panel-tag:hover{border-color:var(--gold);color:var(--gold)}
 
 /* ─── LOGOUT BTN ─── */
 .btn-logout{
@@ -616,18 +686,53 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
     <div class="login-logo">
       <div class="login-logo-icon">S</div>
       <div class="login-title">SMF <b>TRADE</b> RECORDER</div>
-      <div class="login-sub">Accès restreint — Administrateur</div>
+      <div class="login-sub">Trading Journal — Accès Privé</div>
     </div>
-    <div class="login-field">
-      <label class="login-label">Identifiant</label>
-      <input class="login-input" id="l-user" type="text" placeholder="admin" autocomplete="off" onkeydown="if(event.key==='Enter')document.getElementById('l-pass').focus()"/>
+
+    <!-- Onglets Connexion / Inscription -->
+    <div class="login-tabs">
+      <button class="login-tab active" id="tab-login" onclick="switchLoginTab('login')">⚡ Connexion</button>
+      <button class="login-tab" id="tab-register" onclick="switchLoginTab('register')">✦ S'inscrire</button>
     </div>
-    <div class="login-field">
-      <label class="login-label">Mot de passe</label>
-      <input class="login-input" id="l-pass" type="password" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()"/>
+
+    <!-- PANEL CONNEXION -->
+    <div class="login-panel active" id="panel-login">
+      <div class="login-field">
+        <label class="login-label">Identifiant</label>
+        <input class="login-input" id="l-user" type="text" placeholder="Votre pseudo" autocomplete="off"
+          onkeydown="if(event.key==='Enter')document.getElementById('l-pass').focus()"/>
+      </div>
+      <div class="login-field">
+        <label class="login-label">Mot de passe</label>
+        <input class="login-input" id="l-pass" type="password" placeholder="••••••••" autocomplete="off"
+          onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="login-btn ripple-container" id="btn-login" onclick="doLogin()">⚡ Connexion</button>
+      <div class="login-err" id="login-err">⚠ Identifiants incorrects</div>
     </div>
-    <button class="login-btn ripple-container" onclick="doLogin()">⚡ Connexion</button>
-    <div class="login-err" id="login-err">⚠ Identifiants incorrects</div>
+
+    <!-- PANEL INSCRIPTION -->
+    <div class="login-panel" id="panel-register">
+      <div class="login-field">
+        <label class="login-label">Pseudo (sans espaces)</label>
+        <input class="login-input" id="r-user" type="text" placeholder="Ex: Trader77" autocomplete="off"
+          onkeydown="if(event.key==='Enter')document.getElementById('r-pass').focus()"/>
+      </div>
+      <div class="login-field">
+        <label class="login-label">Mot de passe</label>
+        <input class="login-input" id="r-pass" type="password" placeholder="Min. 4 caractères" autocomplete="off"
+          onkeydown="if(event.key==='Enter')document.getElementById('r-pass2').focus()"/>
+      </div>
+      <div class="login-field">
+        <label class="login-label">Confirmer le mot de passe</label>
+        <input class="login-input" id="r-pass2" type="password" placeholder="Répéter le mot de passe" autocomplete="off"
+          onkeydown="if(event.key==='Enter')doRegister()"/>
+      </div>
+      <button class="login-btn ripple-container" id="btn-register" onclick="doRegister()">✦ Créer mon compte</button>
+      <div class="login-err" id="register-err"></div>
+      <div class="login-ok"  id="register-ok"></div>
+    </div>
+
     <div class="login-footer">SMF Research · Private Access · v3.8</div>
   </div>
 </div>
@@ -651,6 +756,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
     <div class="tc" style="border-color:rgba(0,255,0,.15)"><span id="hdr-user-badge" style="color:var(--green);font-weight:700"></span></div>
     <button id="btn-vider" class="btn-reset" onclick="clearAll()" title="Effacer toutes les données">↺ Vider</button>
     <button id="btn-demo" class="btn-reset" onclick="resetData()" title="Charger les données de démo" style="border-color:rgba(201,168,76,.3);color:var(--gold)">⊞ Démo</button>
+    <button id="admin-panel-btn" class="admin-panel-tag" onclick="openAdminPanel()" title="Panneau administrateur">👑 Admin</button>
     <button class="btn-logout" onclick="doLogout()" title="Se déconnecter">⏻ Logout</button>
     <div class="hd" id="hdr-d"></div>
   </div>
@@ -780,6 +886,71 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
     </div>
   </div>
 
+</div>
+
+<!-- MODAL PRÉREQUIS MENSUEL -->
+<div id="prereq-ovl">
+  <div id="prereq-box">
+    <div class="prereq-icon">⚙</div>
+    <div class="prereq-title">Paramètres du mois</div>
+    <div class="prereq-month" id="prereq-month-label"></div>
+    <div class="prereq-desc">Définissez vos paramètres avant de saisir<br>votre premier trade. Ces valeurs seront<br><b style="color:rgba(201,168,76,.8)">verrouillées</b> après la première saisie.</div>
+    <div class="prereq-fields">
+      <div class="prereq-field">
+        <label class="prereq-label"><span>💰</span> Balance initiale du compte</label>
+        <input class="prereq-input" id="prereq-bal" type="number" min="0" step="0.01" placeholder="Ex: 10000"/>
+      </div>
+      <div class="prereq-field">
+        <label class="prereq-label"><span>⚡</span> Risque par trade (%)</label>
+        <input class="prereq-input" id="prereq-risk" type="number" min="0.01" max="100" step="0.01" placeholder="Ex: 1"/>
+      </div>
+    </div>
+    <div class="prereq-warn">🔒 Ces informations ne pourront plus être modifiées<br>une fois le premier trade enregistré.</div>
+    <button class="prereq-btn ripple-container" id="prereq-submit-btn" onclick="submitPrereq()">⚡ Valider et accéder aux trades</button>
+    <div class="prereq-err" id="prereq-err">⚠ Veuillez renseigner les deux champs correctement.</div>
+  </div>
+</div>
+
+<!-- ═══ ADMIN PANEL ═══ -->
+<div id="admin-panel-ovl" style="position:fixed;inset:0;z-index:1500;background:rgba(0,0,0,.94);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center">
+  <div id="admin-panel-box" style="background:#020502;border:2px solid var(--gold);border-radius:10px;padding:28px 32px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(201,168,76,.15);animation:flashIn .3s ease-out">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:10px 10px 0 0"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <span style="font-size:20px">👑</span>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--white)">Panneau Administrateur</div>
+        <div style="font-size:8px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:2px">Gestion des utilisateurs</div>
+      </div>
+      <button onclick="closeAdminPanel()" style="margin-left:auto;background:#030803;border:1px solid rgba(0,255,0,.15);color:var(--mid);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0">✕</button>
+    </div>
+
+    <!-- Stats rapides -->
+    <div id="admin-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px"></div>
+
+    <!-- Liste des utilisateurs -->
+    <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.45);margin-bottom:10px;font-weight:700">Utilisateurs inscrits</div>
+    <div id="admin-user-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px">
+      <div style="color:var(--dim);font-size:10px;text-align:center;padding:20px">Chargement...</div>
+    </div>
+
+    <!-- Créer utilisateur manuellement -->
+    <div style="border-top:1px solid rgba(201,168,76,.12);padding-top:18px">
+      <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.45);margin-bottom:12px;font-weight:700">Créer un utilisateur manuellement</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+        <div>
+          <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Pseudo</div>
+          <input id="admin-new-user" class="login-input" type="text" placeholder="Pseudo" style="font-size:11px;padding:8px 10px"/>
+        </div>
+        <div>
+          <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Mot de passe</div>
+          <input id="admin-new-pass" class="login-input" type="text" placeholder="Mot de passe" style="font-size:11px;padding:8px 10px"/>
+        </div>
+        <button onclick="adminCreateUser()" style="background:linear-gradient(135deg,var(--gold),#b8922a);color:#000;border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:8px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 0 10px rgba(201,168,76,.3)">+ Créer</button>
+      </div>
+      <div id="admin-create-err" style="font-size:9px;color:var(--red);margin-top:8px;display:none"></div>
+      <div id="admin-create-ok"  style="font-size:9px;color:var(--green);margin-top:8px;display:none"></div>
+    </div>
+  </div>
 </div>
 
 <!-- INPUT MONTH DRAWER -->
@@ -1284,6 +1455,7 @@ function saveTrade() {
 function del(id) {
   if (!confirm('Supprimer ce trade ?')) return;
   fsDeleteTrade(id);
+  fsStorageRef(id).delete().catch(function(){});
   fsPhotosRef().doc(String(id)).delete().catch(function(){});
   delete IMG_CACHE[id];
   T = T.filter(function(t){ return t.id !== id; });
@@ -1292,6 +1464,7 @@ function del(id) {
 function delH(id) {
   if (!confirm('Supprimer ce trade ?')) return;
   fsDeleteTrade(id);
+  fsStorageRef(id).delete().catch(function(){});
   fsPhotosRef().doc(String(id)).delete().catch(function(){});
   delete IMG_CACHE[id];
   T = T.filter(function(t){ return t.id !== id; });
@@ -1410,22 +1583,38 @@ function renderXLS() {
 
     // ── Config balance + risque (stop propagation) ──
     html += '<div class="inp-mc-cfg" onclick="event.stopPropagation()">';
-    // Ligne Balance
-    html += '<div class="inp-mc-cfg-row">';
-    html += '<span class="inp-mc-cfg-label">Balance</span>';
-    html += '<input class="inp-mc-cfg-input" type="number" min="0" placeholder="Ex: 10 000"'+
-            ' value="'+(cfg.bal||'')+'"'+
-            ' oninput="onCfgChange(\''+moKey+'\',\'bal\',this.value,'+mo+')"'+
-            '/>';
-    html += '</div>';
-    // Ligne Risque %
-    html += '<div class="inp-mc-cfg-row">';
-    html += '<span class="inp-mc-cfg-label">Risque %</span>';
-    html += '<input class="inp-mc-cfg-input" type="number" min="0" max="100" step="0.1" placeholder="Ex: 1"'+
-            ' value="'+(cfg.risk||'')+'"'+
-            ' oninput="onCfgChange(\''+moKey+'\',\'risk\',this.value,'+mo+')"'+
-            '/>';
-    html += '</div>';
+    if (hasTrades) {
+      // VERROUILLÉ : affichage lecture seule après le 1er trade
+      html += '<div class="cfg-locked-row">';
+      html += '<span class="cfg-locked-lbl">Balance</span>';
+      html += '<span class="cfg-locked-val">'+(cfg.bal ? cfg.bal.toLocaleString('fr-FR')+'$' : '<span style="color:var(--dim)">—</span>')+'</span>';
+      html += '<span class="cfg-lock-icon">🔒</span>';
+      html += '</div>';
+      html += '<div class="cfg-locked-row">';
+      html += '<span class="cfg-locked-lbl">Risque %</span>';
+      html += '<span class="cfg-locked-val">'+(cfg.risk ? cfg.risk+'%' : '<span style="color:var(--dim)">—</span>')+'</span>';
+      html += '<span class="cfg-lock-icon">🔒</span>';
+      html += '</div>';
+    } else if (cfg.bal && cfg.risk) {
+      // Prérequis définis, pas encore de trade → champs éditables
+      html += '<div class="inp-mc-cfg-row">';
+      html += '<span class="inp-mc-cfg-label">Balance</span>';
+      html += '<input class="inp-mc-cfg-input" type="number" min="0" placeholder="Ex: 10 000"'+
+              ' value="'+(cfg.bal||'')+'"'+
+              ' oninput="onCfgChange(\''+moKey+'\',\'bal\',this.value,'+mo+')"'+
+              '/>';
+      html += '</div>';
+      html += '<div class="inp-mc-cfg-row">';
+      html += '<span class="inp-mc-cfg-label">Risque %</span>';
+      html += '<input class="inp-mc-cfg-input" type="number" min="0" max="100" step="0.1" placeholder="Ex: 1"'+
+              ' value="'+(cfg.risk||'')+'"'+
+              ' oninput="onCfgChange(\''+moKey+'\',\'risk\',this.value,'+mo+')"'+
+              '/>';
+      html += '</div>';
+    } else {
+      // Prérequis non définis → incitation à cliquer
+      html += '<div class="cfg-prereq-needed" onclick="event.stopPropagation();openPrereq('+mo+')">⚙ Définir les paramètres du mois</div>';
+    }
 
     // ── Résultats calculés ──
     var montantFmt  = stats.montant   !== null ? fmtMoney(stats.montant) : '—';
@@ -1516,7 +1705,65 @@ function refreshDrawerHeader(mo) {
   }
 }
 
+function openPrereq(mo) {
+  var moKey = XYR+'-'+(mo<9?'0':'')+(mo+1);
+  var cfg = getCFG(moKey);
+  var PREREQ_MO = mo;
+  // Stocker le mois cible
+  document.getElementById('prereq-ovl').dataset.mo = mo;
+  // Label du mois
+  document.getElementById('prereq-month-label').textContent = ML[mo]+' '+XYR;
+  // Pré-remplir si déjà défini
+  document.getElementById('prereq-bal').value  = cfg.bal  ? cfg.bal  : '';
+  document.getElementById('prereq-risk').value = cfg.risk ? cfg.risk : '';
+  document.getElementById('prereq-err').classList.remove('show');
+  document.getElementById('prereq-ovl').classList.add('open');
+  setTimeout(function(){ document.getElementById('prereq-bal').focus(); }, 120);
+}
+
+function submitPrereq() {
+  var mo  = parseInt(document.getElementById('prereq-ovl').dataset.mo);
+  var bal  = parseFloat(document.getElementById('prereq-bal').value);
+  var risk = parseFloat(document.getElementById('prereq-risk').value);
+  if (!bal || bal <= 0 || !risk || risk <= 0 || risk > 100) {
+    var err = document.getElementById('prereq-err');
+    err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+    return;
+  }
+  var moKey = XYR+'-'+(mo<9?'0':'')+(mo+1);
+  if (!CFG[moKey]) CFG[moKey] = {};
+  CFG[moKey].bal  = bal;
+  CFG[moKey].risk = risk;
+  saveCFG();
+  document.getElementById('prereq-ovl').classList.remove('open');
+  document.getElementById('prereq-err').classList.remove('show');
+  renderXLS();
+  spawnNeonBurst && spawnNeonBurst(window.innerWidth/2, window.innerHeight/2);
+  toast('✓ Paramètres enregistrés — '+ML[mo]+' '+XYR);
+  // Ouvrir le drawer directement
+  setTimeout(function(){ openInpDrawer(mo); }, 200);
+}
+
+// Fermer le modal prérequis si on clique sur l'overlay
+document.addEventListener('click', function(e){
+  var ovl = document.getElementById('prereq-ovl');
+  if (e.target === ovl) ovl.classList.remove('open');
+});
+
+// Touche Entrée dans les champs prérequis
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Enter' && document.getElementById('prereq-ovl').classList.contains('open')) submitPrereq();
+});
+
 function openInpDrawer(mo) {
+  // Vérifier les prérequis avant d'ouvrir
+  var moKey0  = XYR+'-'+(mo<9?'0':'')+(mo+1);
+  var cfg0    = getCFG(moKey0);
+  var hasPrereqs = cfg0.bal && cfg0.risk;
+  if (!hasPrereqs) {
+    openPrereq(mo);
+    return;
+  }
   INP_DRW_MO = mo;
   var moKey   = XYR+'-'+(mo<9?'0':'')+(mo+1);
   var yearTrades = T.filter(function(t){ return t.date&&t.date.startsWith(XYR+''); });
@@ -2287,7 +2534,7 @@ var IMG_PENDING_B64 = null;
 
 function hasImg(id) {
   var c = IMG_CACHE[id];
-  return !!(c && (c.b64 || c.cmt));
+  return !!(c && (c.url || c.cmt));
 }
 
 function openImgModal(tradeId) {
@@ -2298,19 +2545,19 @@ function openImgModal(tradeId) {
   document.getElementById('img-modal-badge').textContent = badge;
 
   var cached   = IMG_CACHE[tradeId] || {};
-  var savedB64 = cached.b64 || null;
+  var savedUrl = cached.url || null;
   var savedCmt = cached.cmt || '';
 
   document.getElementById('img-comment').value = savedCmt;
 
-  if (savedB64) {
-    IMG_PENDING_B64 = savedB64;
-    showImgPreview(savedB64);
+  if (savedUrl) {
+    IMG_PENDING_B64 = savedUrl;
+    showImgPreview(savedUrl);
   } else {
     hideImgPreview();
   }
-  document.getElementById('img-btn-open-tab').style.display = savedB64 ? 'inline-block' : 'none';
-  document.getElementById('img-btn-del').style.display      = (savedB64||savedCmt) ? 'inline-block' : 'none';
+  document.getElementById('img-btn-open-tab').style.display = savedUrl ? 'inline-block' : 'none';
+  document.getElementById('img-btn-del').style.display      = (savedUrl||savedCmt) ? 'inline-block' : 'none';
   document.getElementById('img-ovl').classList.add('show');
 }
 
@@ -2376,38 +2623,43 @@ function imgLoadFile(file) {
 function saveImgModal() {
   if (IMG_TRADE_ID === null) return;
   var cmt = document.getElementById('img-comment').value.trim();
+
   if (isDemo()) { closeImgModal(); return; }
 
   var isNewImg = IMG_PENDING_B64 && IMG_PENDING_B64.startsWith('data:');
   toast('⟳ Sauvegarde en cours...', false, 'info');
 
-  var doSave = function(b64) {
+  var doSave = function(url) {
     var data = { cmt: cmt };
-    if (b64) data.b64 = b64;
-    else if (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].b64) data.b64 = IMG_CACHE[IMG_TRADE_ID].b64;
-    fsPhotosRef().doc(String(IMG_TRADE_ID)).set(data).then(function(){
+    if (url) data.url = url;
+    else if (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].url) data.url = IMG_CACHE[IMG_TRADE_ID].url;
+    return fsPhotosRef().doc(String(IMG_TRADE_ID)).set(data).then(function(){
       IMG_CACHE[IMG_TRADE_ID] = data;
-      var hasData = !!(data.b64 || cmt);
-      document.getElementById('img-btn-open-tab').style.display = data.b64 ? 'inline-block' : 'none';
-      document.getElementById('img-btn-del').style.display      = hasData ? 'inline-block' : 'none';
+      document.getElementById('img-btn-open-tab').style.display = data.url ? 'inline-block' : 'none';
+      document.getElementById('img-btn-del').style.display      = (data.url||cmt) ? 'inline-block' : 'none';
       refreshImgButtons();
       toast('📷 Image & commentaire enregistrés !', false, 'info');
       closeImgModal();
-    }).catch(function(e){
-      console.error('Firestore photo error:', e);
-      toast('⚠ Erreur sauvegarde image.', true);
     });
   };
 
   if (isNewImg) {
-    compressImg(IMG_PENDING_B64, doSave);
+    var blob = b64ToBlob(IMG_PENDING_B64);
+    fsStorageRef(IMG_TRADE_ID).put(blob).then(function(snap){
+      return snap.ref.getDownloadURL();
+    }).then(function(url){
+      return doSave(url);
+    }).catch(function(e){
+      console.error('Storage upload error:', e);
+      toast('⚠ Erreur upload image.', true);
+    });
   } else {
     doSave(null);
   }
 }
 
 function openImgNewTab() {
-  var src = IMG_PENDING_B64 || (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].b64) || null;
+  var src = IMG_PENDING_B64 || (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].url) || null;
   var cmt = (IMG_CACHE[IMG_TRADE_ID] && IMG_CACHE[IMG_TRADE_ID].cmt) || '';
   var t   = T.find(function(x){ return x.id === IMG_TRADE_ID; });
   var info = t ? (t.pair+' · '+(t.date||'')+' · '+(t.dir||'')+(t.amount!==null?' · '+(t.amount>=0?'+':'')+t.amount.toFixed(2)+'$':'')) : '';
@@ -2433,6 +2685,7 @@ function openImgNewTab() {
 function deleteImgData() {
   if (!confirm('Supprimer l\'image et le commentaire de ce trade ?')) return;
   if (IMG_TRADE_ID !== null && !isDemo()) {
+    fsStorageRef(IMG_TRADE_ID).delete().catch(function(){});
     fsPhotosRef().doc(String(IMG_TRADE_ID)).delete().catch(function(){});
     delete IMG_CACHE[IMG_TRADE_ID];
   }
@@ -2651,47 +2904,52 @@ function triggerClickAnim(e, forceType) {
 }
 
 // ── AUTH ──
+// ── ADMINS HARDCODÉS (ne peuvent pas s'inscrire via le formulaire) ──
 var ADMINS = [
   {user:'KGB',  pass:'77',   role:'admin'},
   {user:'SMF',  pass:'77',   role:'admin'},
   {user:'demo', pass:'demo', role:'demo'}
 ];
 var CURRENT_USER = '';
+var CURRENT_ROLE  = '';
+
+// ── HASH SHA-256 (mot de passe stocké hashé dans Firestore) ──
+async function sha256(str) {
+  var buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){ return b.toString(16).padStart(2,'0'); }).join('');
+}
+
+// ── RÉFÉRENCE UTILISATEURS FIRESTORE ──
+function fsUsersRef() { return db ? db.collection('smf_users') : null; }
+function fsUserRef(u) { return db ? db.collection('smf_users').doc(u) : null; }
 
 // ── FIREBASE ──
-var firebaseConfig = {
-  apiKey: "AIzaSyCne4G3T-dLYyNu31RRi-HNFTXjASnPVNE",
-  authDomain: "fir-m-f.firebaseapp.com",
-  projectId: "fir-m-f",
-  storageBucket: "fir-m-f.firebasestorage.app",
-  messagingSenderId: "567813195919",
-  appId: "1:567813195919:web:cb80c21791166ddd10c8fa"
-};
-firebase.initializeApp(firebaseConfig);
-var db = firebase.firestore();
+var db = null, storage = null;
+var FIREBASE_OK = false;
+try {
+  var firebaseConfig = {
+    apiKey: "AIzaSyCOJZoiLpNvo4ozZajNBM1RY34CGa6yIQI",
+    authDomain: "smf-track-reecord.firebaseapp.com",
+    projectId: "smf-track-reecord",
+    storageBucket: "smf-track-reecord.firebasestorage.app",
+    messagingSenderId: "75923201008",
+    appId: "1:75923201008:web:fc73c62822ea4a0a3fdb35"
+  };
+  firebase.initializeApp(firebaseConfig);
+  db      = firebase.firestore();
+  storage = firebase.storage();
+  FIREBASE_OK = true;
+} catch(e) {
+  console.warn('Firebase non disponible, mode localStorage activé.', e);
+}
 
 function fsTradesRef()         { return db.collection('smf_recorder').doc(CURRENT_USER).collection('trades'); }
 function fsCfgRef()            { return db.collection('smf_recorder').doc(CURRENT_USER); }
 function fsPhotosRef()         { return db.collection('smf_recorder').doc(CURRENT_USER).collection('photos'); }
+function fsStorageRef(tradeId) { return storage.ref('images/' + CURRENT_USER + '/' + String(tradeId)); }
 
-// Cache local des photos { tradeId: { b64, cmt } }
+// Cache local des photos { tradeId: { url, cmt } }
 var IMG_CACHE = {};
-
-// Compression image avant stockage Firestore (max ~800Ko)
-function compressImg(b64, callback) {
-  var img = new Image();
-  img.onload = function() {
-    var canvas = document.createElement('canvas');
-    var MAX = 1200;
-    var w = img.width, h = img.height;
-    if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
-    if (h > MAX) { w = Math.round(w * MAX / h); h = MAX; }
-    canvas.width = w; canvas.height = h;
-    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-    callback(canvas.toDataURL('image/jpeg', 0.75));
-  };
-  img.src = b64;
-}
 
 function b64ToBlob(b64) {
   var parts = b64.split(',');
@@ -2712,85 +2970,175 @@ function fsDeleteTrade(id){
 }
 function fsClearAll(){
   if(isDemo()||!CURRENT_USER) return;
+  // Delete trades
   fsTradesRef().get().then(function(snap){
     var batch = db.batch();
     snap.forEach(function(d){ batch.delete(d.ref); });
     return batch.commit();
   });
+  // Delete photos from Firestore + Storage
   fsPhotosRef().get().then(function(snap){
     var batch = db.batch();
-    snap.forEach(function(d){ batch.delete(d.ref); });
+    snap.forEach(function(d){
+      batch.delete(d.ref);
+      try { fsStorageRef(d.id).delete(); } catch(e){}
+    });
     return batch.commit();
   });
   IMG_CACHE = {};
 }
 var SESSION_KEY = 'smf_auth_v1';
 
-// Auth state en mémoire (fonctionne aussi en file://)
-var AUTH_STATE = { logged: false, user: '', role: '' };
-
 function checkSession(){
-  if(AUTH_STATE.logged){ CURRENT_USER = AUTH_STATE.user; return true; }
-  // Fallback sessionStorage si disponible
-  try {
-    if(sessionStorage.getItem(SESSION_KEY) === '1'){
-      CURRENT_USER = sessionStorage.getItem('smf_user') || '';
-      AUTH_STATE = { logged:true, user:CURRENT_USER, role: sessionStorage.getItem('smf_role')||'' };
-      return true;
-    }
-  } catch(e){}
+  if(sessionStorage.getItem(SESSION_KEY) === '1'){
+    CURRENT_USER = sessionStorage.getItem('smf_user') || '';
+    CURRENT_ROLE  = sessionStorage.getItem('smf_role')  || 'user';
+    return true;
+  }
   return false;
 }
 
+// ── SWITCH ONGLETS LOGIN/REGISTER ──
+function switchLoginTab(tab) {
+  document.getElementById('tab-login').classList.toggle('active', tab==='login');
+  document.getElementById('tab-register').classList.toggle('active', tab==='register');
+  document.getElementById('panel-login').classList.toggle('active', tab==='login');
+  document.getElementById('panel-register').classList.toggle('active', tab==='register');
+  // Reset erreurs
+  document.getElementById('login-err').classList.remove('show');
+  document.getElementById('register-err').classList.remove('show');
+  document.getElementById('register-ok').classList.remove('show');
+  setTimeout(function(){
+    if(tab==='login') document.getElementById('l-user').focus();
+    else document.getElementById('r-user').focus();
+  }, 80);
+}
+
+function _startSession(user, role) {
+  CURRENT_USER = user;
+  CURRENT_ROLE  = role;
+  sessionStorage.setItem(SESSION_KEY,'1');
+  sessionStorage.setItem('smf_user', user);
+  sessionStorage.setItem('smf_role', role);
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('login-err').classList.remove('show');
+  document.getElementById('hdr-d').textContent=
+    new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
+  document.getElementById('f-date').valueAsDate=new Date();
+  document.getElementById('pg-input').style.display='flex';
+  loadUserData();
+  applyUserUI();
+  spawnNeonBurst(window.innerWidth/2, window.innerHeight/2);
+}
+
 function doLogin(){
-  var u = document.getElementById('l-user').value.trim();
-  var p = document.getElementById('l-pass').value;
+  var u   = document.getElementById('l-user').value.trim();
+  var p   = document.getElementById('l-pass').value;
   var err = document.getElementById('login-err');
-  var match = ADMINS.find(function(a){return u===a.user && p===a.pass;});
-  if(match){
-    CURRENT_USER = match.user;
-    AUTH_STATE = { logged:true, user:match.user, role:match.role };
-    try {
-      sessionStorage.setItem(SESSION_KEY,'1');
-      sessionStorage.setItem('smf_user', match.user);
-      sessionStorage.setItem('smf_role', match.role);
-    } catch(e){}
-    document.getElementById('login-screen').classList.add('hidden');
-    err.classList.remove('show');
-    document.getElementById('hdr-d').textContent=
-      new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
-    document.getElementById('f-date').valueAsDate=new Date();
-    document.getElementById('pg-input').style.display='flex';
-    loadUserData();
-    applyUserUI();
-    spawnNeonBurst(window.innerWidth/2, window.innerHeight/2);
-  } else {
-    err.classList.remove('show');
-    void err.offsetWidth;
-    err.classList.add('show');
-    document.getElementById('l-pass').value='';
-    document.getElementById('l-pass').focus();
-    glitchScreen && glitchScreen();
+  var btn = document.getElementById('btn-login');
+
+  if(!u || !p){ err.textContent='⚠ Renseignez identifiant et mot de passe.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show'); return; }
+
+  // 1. Vérifier les admins hardcodés (sync, sans Firebase)
+  var match = ADMINS.find(function(a){ return u===a.user && p===a.pass; });
+  if(match){ _startSession(match.user, match.role); return; }
+
+  // 2. Vérifier dans Firestore (utilisateurs inscrits)
+  if(!FIREBASE_OK || !db){
+    err.textContent='⚠ Identifiants incorrects.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+    document.getElementById('l-pass').value=''; document.getElementById('l-pass').focus();
+    glitchScreen && glitchScreen(); return;
   }
+  btn.classList.add('loading'); btn.textContent='⟳ Vérification...';
+  sha256(p).then(function(hash){
+    return fsUserRef(u).get();
+  }).then(function(doc){
+    btn.classList.remove('loading'); btn.textContent='⚡ Connexion';
+    if(!doc.exists){
+      err.textContent='⚠ Identifiants incorrects.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+      document.getElementById('l-pass').value=''; document.getElementById('l-pass').focus();
+      glitchScreen && glitchScreen(); return;
+    }
+    var data = doc.data();
+    sha256(p).then(function(h){
+      if(h !== data.passHash){
+        err.textContent='⚠ Identifiants incorrects.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+        document.getElementById('l-pass').value=''; document.getElementById('l-pass').focus();
+        glitchScreen && glitchScreen();
+      } else {
+        _startSession(data.user, data.role || 'user');
+      }
+    });
+  }).catch(function(e){
+    btn.classList.remove('loading'); btn.textContent='⚡ Connexion';
+    console.error(e);
+    err.textContent='⚠ Erreur de connexion. Réessayez.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+  });
+}
+
+// ── INSCRIPTION ──
+function doRegister(){
+  var u  = document.getElementById('r-user').value.trim();
+  var p  = document.getElementById('r-pass').value;
+  var p2 = document.getElementById('r-pass2').value;
+  var err = document.getElementById('register-err');
+  var ok  = document.getElementById('register-ok');
+  var btn = document.getElementById('btn-register');
+
+  function showErr(msg){ err.textContent=msg; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show'); ok.classList.remove('show'); }
+  err.classList.remove('show'); ok.classList.remove('show');
+
+  // Validations
+  if(!u || u.length < 3)       { showErr('⚠ Pseudo trop court (min. 3 caractères).'); return; }
+  if(/\s/.test(u))              { showErr('⚠ Le pseudo ne doit pas contenir d\u2019espaces.'); return; }
+  if(ADMINS.some(function(a){ return a.user.toLowerCase()===u.toLowerCase(); })){ showErr('⚠ Ce pseudo est réservé.'); return; }
+  if(!p || p.length < 4)       { showErr('⚠ Mot de passe trop court (min. 4 caractères).'); return; }
+  if(p !== p2)                  { showErr('⚠ Les mots de passe ne correspondent pas.'); return; }
+  if(!FIREBASE_OK || !db)       { showErr('⚠ Service indisponible. Réessayez plus tard.'); return; }
+
+  btn.classList.add('loading'); btn.textContent='⟳ Création...';
+  // Vérifier si le pseudo existe déjà
+  fsUserRef(u).get().then(function(doc){
+    if(doc.exists){ btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte'; showErr('⚠ Ce pseudo est déjà pris. Choisissez-en un autre.'); return; }
+    return sha256(p).then(function(hash){
+      return fsUserRef(u).set({
+        user: u,
+        passHash: hash,
+        role: 'user',
+        createdAt: Date.now()
+      });
+    }).then(function(){
+      btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte';
+      ok.textContent='✓ Compte créé ! Connexion en cours...';
+      ok.classList.add('show');
+      document.getElementById('r-pass').value='';
+      document.getElementById('r-pass2').value='';
+      setTimeout(function(){ _startSession(u, 'user'); }, 900);
+    });
+  }).catch(function(e){
+    btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte';
+    console.error(e);
+    showErr('⚠ Erreur lors de l’inscription. Réessayez.');
+  });
 }
 
 function doLogout(){
   saveUserData();
-  AUTH_STATE = { logged:false, user:'', role:'' };
-  try {
-    sessionStorage.removeItem(SESSION_KEY);
-    sessionStorage.removeItem('smf_user');
-    sessionStorage.removeItem('smf_role');
-  } catch(e){}
-  CURRENT_USER = '';
+  sessionStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem('smf_user');
+  sessionStorage.removeItem('smf_role');
+  CURRENT_USER = ''; CURRENT_ROLE = '';
   T = [];
   document.getElementById('l-user').value='';
   document.getElementById('l-pass').value='';
   document.getElementById('login-screen').classList.remove('hidden');
+  switchLoginTab('login');
   setTimeout(function(){document.getElementById('l-user').focus();},100);
 }
 
-function isDemo(){ return AUTH_STATE.role === 'demo'; }
+function isDemo()  { return CURRENT_ROLE==='demo';  }
+function isAdmin() { return CURRENT_ROLE==='admin'; }
+function isUser()  { return CURRENT_ROLE==='user';  }
 
 function userKey(base){ return base+'_'+CURRENT_USER; }
 
@@ -2801,6 +3149,15 @@ function loadUserData(){
     document.getElementById('hdr-tc').textContent = T.length;
     XYR = new Date().getFullYear();
     renderXLS();
+    return;
+  }
+  if(!FIREBASE_OK || !db){
+    T   = JSON.parse(localStorage.getItem(userKey('smf_t'))   || '[]');
+    CFG = JSON.parse(localStorage.getItem(userKey('smf_cfg')) || '{}');
+    document.getElementById('hdr-tc').textContent = T.length;
+    XYR = new Date().getFullYear();
+    renderXLS();
+    toast('⚠ Mode hors-ligne (localStorage)', true);
     return;
   }
   toast('⟳ Chargement des données...', false, 'info');
@@ -2837,21 +3194,144 @@ function saveUserData(){ /* Firestore sync per operation — nothing to do */ }
 
 function applyUserUI(){
   var user = CURRENT_USER;
-  var role = AUTH_STATE.role;
+  var role = CURRENT_ROLE;
   // Badge utilisateur
   var badge = document.getElementById('hdr-user-badge');
-  if(badge){ badge.textContent = user; badge.style.color = role==='demo'?'var(--gold)':'var(--green)'; }
+  if(badge){
+    var roleLabel = role==='admin' ? '<span class="role-badge admin">Admin</span>' : role==='demo' ? '<span class="role-badge" style="background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:var(--gold)">Démo</span>' : '<span class="role-badge user">User</span>';
+    badge.innerHTML = user + roleLabel;
+  }
   // Boutons selon rôle
-  var btnVider = document.getElementById('btn-vider');
-  var btnDemo  = document.getElementById('btn-demo');
-  if(role==='demo'){
-    if(btnVider) btnVider.style.display='none';
-    if(btnDemo)  btnDemo.style.display='none';
-  } else {
-    if(btnVider) btnVider.style.display='';
-    if(btnDemo)  btnDemo.style.display='none'; // cacher Démo pour les vrais admins aussi
+  var btnVider     = document.getElementById('btn-vider');
+  var btnDemo      = document.getElementById('btn-demo');
+  var btnAdminPanel = document.getElementById('admin-panel-btn');
+  if(role==='admin'){
+    if(btnVider)      btnVider.style.display='';
+    if(btnDemo)       btnDemo.style.display='none';
+    if(btnAdminPanel) btnAdminPanel.style.display='';
+  } else if(role==='user'){
+    if(btnVider)      btnVider.style.display='none';
+    if(btnDemo)       btnDemo.style.display='none';
+    if(btnAdminPanel) btnAdminPanel.style.display='none';
+  } else { // demo
+    if(btnVider)      btnVider.style.display='none';
+    if(btnDemo)       btnDemo.style.display='none';
+    if(btnAdminPanel) btnAdminPanel.style.display='none';
   }
 }
+
+// ── PANNEAU ADMIN ──
+function openAdminPanel(){
+  if(!isAdmin()) return;
+  document.getElementById('admin-panel-ovl').style.display='flex';
+  loadAdminUsers();
+}
+function closeAdminPanel(){
+  document.getElementById('admin-panel-ovl').style.display='none';
+}
+
+function loadAdminUsers(){
+  var listEl  = document.getElementById('admin-user-list');
+  var statsEl = document.getElementById('admin-stats');
+  if(!db){
+    listEl.innerHTML = '<div style="color:var(--dim);font-size:10px;text-align:center;padding:20px">Firebase non disponible.</div>';
+    return;
+  }
+  fsUsersRef().get().then(function(snap){
+    var users = [];
+    snap.forEach(function(d){ users.push(d.data()); });
+    users.sort(function(a,b){ return (a.createdAt||0)-(b.createdAt||0); });
+
+    // Stats
+    statsEl.innerHTML =
+      '<div style="background:#030803;border:1px solid rgba(201,168,76,.15);border-radius:6px;padding:12px;text-align:center">' +
+        '<div style="font-size:20px;font-weight:700;color:var(--gold)">' + users.length + '</div>' +
+        '<div style="font-size:7.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-top:4px">Inscrits</div></div>' +
+      '<div style="background:#030803;border:1px solid rgba(0,255,0,.1);border-radius:6px;padding:12px;text-align:center">' +
+        '<div style="font-size:20px;font-weight:700;color:var(--green)">' + (ADMINS.length-1) + '</div>' +
+        '<div style="font-size:7.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-top:4px">Admins</div></div>' +
+      '<div style="background:#030803;border:1px solid rgba(0,204,255,.08);border-radius:6px;padding:12px;text-align:center">' +
+        '<div style="font-size:20px;font-weight:700;color:var(--blue)">' + (users.length + ADMINS.length - 1) + '</div>' +
+        '<div style="font-size:7.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-top:4px">Total</div></div>';
+
+    if(users.length === 0){
+      listEl.innerHTML = '<div style="color:var(--dim);font-size:10px;text-align:center;padding:20px">Aucun utilisateur inscrit.</div>';
+      return;
+    }
+    var html = '';
+    users.forEach(function(u){
+      var dt = u.createdAt ? new Date(u.createdAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+      // Utiliser data-username pour éviter les guillemets imbriqués dans onclick
+      html += '<div style="display:flex;align-items:center;gap:10px;background:#030803;border:1px solid rgba(0,255,0,.08);border-radius:6px;padding:10px 14px;margin-bottom:6px">';
+      html += '<div style="font-size:11px;font-weight:700;color:var(--white);flex:1">' + u.user + '</div>';
+      html += '<div style="font-size:8px;color:var(--dim)">' + dt + '</div>';
+      html += '<span style="font-size:7px;padding:2px 8px;border-radius:10px;background:rgba(0,255,0,.08);border:1px solid rgba(0,255,0,.2);color:var(--green);font-weight:700;letter-spacing:.06em;text-transform:uppercase">USER</span>';
+      html += '<button class="admin-del-btn" data-username="' + u.user + '" style="background:transparent;border:1px solid rgba(255,0,0,.2);color:var(--red);font-family:JetBrains Mono,monospace;font-size:9px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .15s">Suppr.</button>';
+      html += '</div>';
+    });
+    listEl.innerHTML = html;
+
+    // Event delegation pour les boutons supprimer
+    listEl.querySelectorAll('.admin-del-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        adminDeleteUser(this.dataset.username);
+      });
+    });
+  }).catch(function(e){
+    console.error(e);
+    listEl.innerHTML = '<div style="color:var(--red);font-size:10px;text-align:center;padding:20px">Erreur de chargement.</div>';
+  });
+}
+
+function adminCreateUser(){
+  var u = document.getElementById('admin-new-user').value.trim();
+  var p = document.getElementById('admin-new-pass').value.trim();
+  var errEl = document.getElementById('admin-create-err');
+  var okEl  = document.getElementById('admin-create-ok');
+  errEl.style.display = 'none';
+  okEl.style.display  = 'none';
+  if(!u || u.length < 2 || !p || p.length < 2){
+    errEl.textContent = 'Pseudo et mot de passe requis (min. 2 car.).';
+    errEl.style.display = 'block'; return;
+  }
+  if(ADMINS.some(function(a){ return a.user.toLowerCase() === u.toLowerCase(); })){
+    errEl.textContent = 'Ce pseudo est reservé.';
+    errEl.style.display = 'block'; return;
+  }
+  fsUserRef(u).get().then(function(doc){
+    if(doc.exists){
+      errEl.textContent = 'Utilisateur déjà existant.';
+      errEl.style.display = 'block'; return;
+    }
+    return sha256(p).then(function(hash){
+      return fsUserRef(u).set({ user: u, passHash: hash, role: 'user', createdAt: Date.now() });
+    }).then(function(){
+      okEl.textContent = 'Utilisateur "' + u + '" créé.';
+      okEl.style.display = 'block';
+      document.getElementById('admin-new-user').value = '';
+      document.getElementById('admin-new-pass').value = '';
+      loadAdminUsers();
+    });
+  }).catch(function(e){
+    errEl.textContent = 'Erreur: ' + e.message;
+    errEl.style.display = 'block';
+  });
+}
+
+function adminDeleteUser(username){
+  if(!confirm('Supprimer "' + username + '" et toutes ses données ?')) return;
+  fsUserRef(username).delete().then(function(){
+    return db.collection('smf_recorder').doc(username).collection('trades').get().then(function(snap){
+      var batch = db.batch();
+      snap.forEach(function(d){ batch.delete(d.ref); });
+      return batch.commit();
+    });
+  }).then(function(){
+    toast('Utilisateur "' + username + '" supprimé.');
+    loadAdminUsers();
+  }).catch(function(e){ toast('Erreur: ' + e.message, true); });
+}
+
 
 // ── INIT ──
 window.onload=function(){
