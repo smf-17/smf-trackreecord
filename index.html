@@ -613,6 +613,30 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
   color:rgba(201,168,76,.7);letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .15s}
 .admin-panel-tag:hover{border-color:var(--gold);color:var(--gold)}
 
+/* ─── COUPON SCREEN ─── */
+#coupon-screen{position:fixed;inset:0;z-index:9998;background:#000;display:none;align-items:center;justify-content:center;flex-direction:column}
+#coupon-screen.show{display:flex}
+.coupon-box{background:linear-gradient(180deg,#030803 0%,#010301 100%);border:1px solid rgba(201,168,76,.3);border-radius:10px;padding:40px 44px;width:380px;position:relative;box-shadow:0 0 60px rgba(201,168,76,.07),0 0 120px rgba(0,0,0,.8);animation:flashIn .4s ease-out}
+.coupon-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:10px 10px 0 0}
+.coupon-icon{width:50px;height:50px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#b8922a);display:inline-flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:14px;box-shadow:0 0 20px rgba(201,168,76,.4)}
+.coupon-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--white);margin-bottom:6px}
+.coupon-sub{font-size:9px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:28px}
+.coupon-expired-badge{background:rgba(255,0,0,.08);border:1px solid rgba(255,0,0,.25);border-radius:6px;padding:10px 14px;font-size:10px;color:var(--red);text-align:center;margin-bottom:22px;text-shadow:0 0 6px rgba(255,0,0,.3)}
+.coupon-input-wrap{position:relative;margin-bottom:14px}
+.coupon-input{width:100%;background:#030803;border:1px solid rgba(201,168,76,.2);border-radius:var(--radius);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;letter-spacing:.18em;text-align:center;text-transform:uppercase;padding:14px 13px;outline:none;transition:border-color .15s,box-shadow .15s}
+.coupon-input:focus{border-color:var(--gold);background:#000;box-shadow:0 0 14px rgba(201,168,76,.25)}
+.coupon-input::placeholder{color:rgba(201,168,76,.2);font-size:14px;letter-spacing:.1em}
+.coupon-btn{width:100%;margin-top:4px;background:linear-gradient(135deg,var(--gold),#b8922a);color:#000;border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:13px;cursor:pointer;transition:all .2s;box-shadow:0 0 15px rgba(201,168,76,.4)}
+.coupon-btn:hover{box-shadow:0 0 30px rgba(201,168,76,.7);transform:translateY(-1px)}
+.coupon-btn.loading{opacity:.6;pointer-events:none}
+.coupon-err{background:rgba(255,0,0,.08);border:1px solid rgba(255,0,0,.25);border-radius:var(--radius);padding:9px 13px;color:var(--red);font-size:10px;text-align:center;margin-top:10px;display:none;text-shadow:0 0 6px rgba(255,0,0,.4)}
+.coupon-err.show{display:block;animation:flashIn .2s ease-out}
+.coupon-ok{background:rgba(0,255,0,.06);border:1px solid rgba(0,255,0,.2);border-radius:var(--radius);padding:9px 13px;color:var(--green);font-size:10px;text-align:center;margin-top:10px;display:none;text-shadow:0 0 6px rgba(0,255,0,.3)}
+.coupon-ok.show{display:block;animation:flashIn .2s ease-out}
+.coupon-logout{background:transparent;border:none;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;margin-top:18px;transition:color .15s;text-align:center;width:100%}
+.coupon-logout:hover{color:var(--text)}
+.trial-badge{background:rgba(0,255,0,.06);border:1px solid rgba(0,255,0,.15);border-radius:6px;padding:9px 14px;font-size:10px;color:var(--green);text-align:center;margin-bottom:22px}
+
 /* ─── LOGOUT BTN ─── */
 .btn-logout{
   background:transparent;border:1px solid rgba(255,0,0,.2);
@@ -684,6 +708,28 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
   </div>
 </div>
 
+<!-- ═══ COUPON SCREEN ═══ -->
+<div id="coupon-screen">
+  <div class="coupon-box">
+    <div style="text-align:center;margin-bottom:24px">
+      <div class="coupon-icon">🎟</div>
+      <div class="coupon-title">Accès expiré</div>
+      <div class="coupon-sub">Entrez votre code d'activation</div>
+    </div>
+    <div class="coupon-expired-badge" id="coupon-expired-msg">⏱ Votre période d'essai de 30 jours est terminée.</div>
+    <div class="coupon-input-wrap">
+      <input class="coupon-input" id="coupon-code" type="text" maxlength="7" placeholder="XXXXXX0"
+        autocomplete="off" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+        onkeydown="if(event.key==='Enter')submitCoupon()"/>
+    </div>
+    <button class="coupon-btn ripple-container" id="btn-coupon" onclick="submitCoupon()">🎟 Activer le code</button>
+    <div class="coupon-err" id="coupon-err"></div>
+    <div class="coupon-ok"  id="coupon-ok"></div>
+    <button class="coupon-logout" onclick="doLogout()">⏻ Se déconnecter</button>
+    <div style="text-align:center;font-size:7.5px;color:var(--dim);margin-top:16px;letter-spacing:.07em">Contactez KGB pour obtenir un code · SMF Research</div>
+  </div>
+</div>
+
 <div id="hdr">
   <div class="logo">
     <div class="logo-icon">S</div>
@@ -696,6 +742,7 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
     <button class="nb"     id="nb-monthly"   onclick="sw('monthly')"><span class="nb-icon">◧</span>Mensuel</button>
     <button class="nb"     id="nb-quarterly" onclick="sw('quarterly')"><span class="nb-icon">◨</span>Trimestriel</button>
     <button class="nb"     id="nb-annual"    onclick="sw('annual')"><span class="nb-icon">◫</span>Annuel</button>
+    <button class="nb"     id="nb-leaderboard" onclick="sw('leaderboard')"><span class="nb-icon">🏆</span>Classement</button>
   </div>
   <div class="hdrr">
     <div class="dot"></div>
@@ -707,10 +754,22 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
     <div class="tc" style="border-color:rgba(0,255,0,.15)"><span id="hdr-user-badge" style="color:var(--green);font-weight:700"></span></div>
     <button id="btn-vider" class="btn-reset" onclick="clearAll()" title="Effacer toutes les données">↺ Vider</button>
     <button id="btn-demo" class="btn-reset" onclick="resetData()" title="Charger les données de démo" style="border-color:rgba(201,168,76,.3);color:var(--gold)">⊞ Démo</button>
+    <button id="btn-export-json" class="btn-reset" onclick="exportJSON()" title="Exporter backup JSON" style="border-color:rgba(0,204,255,.3);color:var(--blue)">↓ Backup</button>
+    <button id="btn-import-json" class="btn-reset" onclick="importJSON()" title="Importer depuis un backup JSON" style="border-color:rgba(0,204,255,.2);color:var(--blue)">↑ Import</button>
     <button id="admin-panel-btn" class="admin-panel-tag" onclick="openAdminPanel()" title="Panneau administrateur">👑 Admin</button>
     <button class="btn-logout" onclick="doLogout()" title="Se déconnecter">⏻ Logout</button>
     <div class="hd" id="hdr-d"></div>
   </div>
+</div>
+
+<!-- ═══ SPECTATOR BANNER ═══ -->
+<div id="spectator-banner" style="display:none;background:linear-gradient(90deg,rgba(201,168,76,.12),rgba(201,168,76,.06));border-bottom:1px solid rgba(201,168,76,.3);padding:7px 22px;display:none;align-items:center;gap:12px;flex-shrink:0;z-index:9">
+  <span style="font-size:13px">👁</span>
+  <span style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)">Mode Spectateur</span>
+  <span style="font-size:9px;color:rgba(201,168,76,.6)">—</span>
+  <span id="spectator-name" style="font-size:10px;font-weight:700;color:var(--white)"></span>
+  <span style="font-size:8px;color:var(--dim);flex:1">Lecture seule · Aucune modification possible</span>
+  <button onclick="exitSpectatorMode()" style="background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.4);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 14px;border-radius:4px;cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(201,168,76,.2)'" onmouseout="this.style.background='rgba(201,168,76,.1)'">✕ Retour à ma session</button>
 </div>
 
 <div id="body">
@@ -837,6 +896,44 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
     </div>
   </div>
 
+  <!-- LEADERBOARD -->
+  <div id="pg-leaderboard" class="pg" style="padding:0">
+    <div class="ph" style="display:flex;align-items:center;justify-content:space-between;padding:14px 22px">
+      <div>
+        <h2 style="display:inline-flex;align-items:center;gap:10px">🏆 Classement Global
+          <span style="font-size:9px;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;background:rgba(0,255,0,.08);border:1px solid rgba(0,255,0,.2);color:var(--green)">Live</span>
+        </h2>
+        <div style="font-size:9px;color:var(--dim);margin-top:4px;letter-spacing:.06em">Classé par Total R · Admins en tête · Mis à jour en temps réel</div>
+      </div>
+      <button onclick="renderLeaderboard()" style="background:#030803;border:1px solid rgba(0,255,0,.15);color:var(--mid);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:6px 14px;border-radius:4px;cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseout="this.style.borderColor='rgba(0,255,0,.15)';this.style.color='var(--mid)'">↺ Actualiser</button>
+    </div>
+    <div style="padding:16px 22px 80px">
+      <!-- Podium top 3 -->
+      <div id="lb-podium" style="display:flex;justify-content:center;align-items:flex-end;gap:12px;margin-bottom:28px;min-height:120px"></div>
+      <!-- Tableau -->
+      <div id="lb-table-wrap" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:700px">
+          <thead>
+            <tr id="lb-thead">
+              <th style="background:#030803;color:rgba(0,255,0,.4);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px;border:1px solid rgba(0,255,0,.08);text-align:center;width:44px">#</th>
+              <th style="background:#030803;color:rgba(0,255,0,.4);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px;border:1px solid rgba(0,255,0,.08);text-align:left">Trader</th>
+              <th style="background:#030803;color:rgba(0,255,0,.4);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px;border:1px solid rgba(0,255,0,.08);text-align:center">Total R</th>
+              <th style="background:#030803;color:rgba(0,255,0,.4);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px;border:1px solid rgba(0,255,0,.08);text-align:center">Win Rate</th>
+              <th style="background:#030803;color:rgba(0,255,0,.4);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px;border:1px solid rgba(0,255,0,.08);text-align:center">Trades</th>
+              <th style="background:#030803;color:rgba(0,255,0,.4);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px;border:1px solid rgba(0,255,0,.08);text-align:center">Avg R:R</th>
+              <th style="background:#030803;color:rgba(0,255,0,.4);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px;border:1px solid rgba(0,255,0,.08);text-align:center">Meilleur Mois</th>
+              <th style="background:#030803;color:rgba(0,255,0,.4);font-size:8px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px;border:1px solid rgba(0,255,0,.08);text-align:center">Streak</th>
+            </tr>
+          </thead>
+          <tbody id="lb-tbody">
+            <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--dim);font-size:10px">Chargement du classement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="text-align:center;font-size:8px;color:var(--dim);margin-top:16px;letter-spacing:.06em">Les statistiques sont mises à jour à chaque sauvegarde de trade</div>
+    </div>
+  </div>
+
 </div>
 
 <!-- MODAL PRÉREQUIS MENSUEL -->
@@ -864,43 +961,122 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 
 <!-- ═══ ADMIN PANEL ═══ -->
 <div id="admin-panel-ovl" style="position:fixed;inset:0;z-index:1500;background:rgba(0,0,0,.94);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center">
-  <div id="admin-panel-box" style="background:#020502;border:2px solid var(--gold);border-radius:10px;padding:28px 32px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(201,168,76,.15);animation:flashIn .3s ease-out">
+  <div id="admin-panel-box" style="background:#020502;border:2px solid var(--gold);border-radius:10px;padding:28px 32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 0 60px rgba(201,168,76,.15);animation:flashIn .3s ease-out">
     <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);border-radius:10px 10px 0 0"></div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
       <span style="font-size:20px">👑</span>
       <div>
-        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--white)">Panneau Administrateur</div>
-        <div style="font-size:8px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:2px">Gestion des utilisateurs</div>
+        <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--white)">Panneau KGB</div>
+        <div style="font-size:8px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-top:2px">Gestion des accès</div>
       </div>
       <button onclick="closeAdminPanel()" style="margin-left:auto;background:#030803;border:1px solid rgba(0,255,0,.15);color:var(--mid);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0">✕</button>
     </div>
 
-    <!-- Stats rapides -->
-    <div id="admin-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px"></div>
-
-    <!-- Liste des utilisateurs -->
-    <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.45);margin-bottom:10px;font-weight:700">Utilisateurs inscrits</div>
-    <div id="admin-user-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px">
-      <div style="color:var(--dim);font-size:10px;text-align:center;padding:20px">Chargement...</div>
+    <!-- Onglets Admin -->
+    <div style="display:flex;gap:0;margin-bottom:22px;border:1px solid rgba(201,168,76,.15);border-radius:6px;overflow:hidden">
+      <button id="atab-users"   onclick="switchAdminTab('users')"   style="flex:1;background:rgba(201,168,76,.1);border:none;color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:9px 0;cursor:pointer;border-right:1px solid rgba(201,168,76,.15);transition:all .2s">👥 Utilisateurs</button>
+      <button id="atab-coupons" onclick="switchAdminTab('coupons')" style="flex:1;background:transparent;border:none;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:9px 0;cursor:pointer;border-right:1px solid rgba(201,168,76,.15);transition:all .2s">🎟 Coupons</button>
+      <button id="atab-config"  onclick="switchAdminTab('config')"  style="flex:1;background:transparent;border:none;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:9px 0;cursor:pointer;transition:all .2s">⚙ Config</button>
     </div>
 
-    <!-- Créer utilisateur manuellement -->
-    <div style="border-top:1px solid rgba(201,168,76,.12);padding-top:18px">
-      <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.45);margin-bottom:12px;font-weight:700">Créer un utilisateur manuellement</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
-        <div>
-          <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Pseudo</div>
-          <input id="admin-new-user" class="login-input" type="text" placeholder="Pseudo" style="font-size:11px;padding:8px 10px"/>
-        </div>
-        <div>
-          <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Mot de passe</div>
-          <input id="admin-new-pass" class="login-input" type="text" placeholder="Mot de passe" style="font-size:11px;padding:8px 10px"/>
-        </div>
-        <button onclick="adminCreateUser()" style="background:linear-gradient(135deg,var(--gold),#b8922a);color:#000;border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:8px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 0 10px rgba(201,168,76,.3)">+ Créer</button>
+    <!-- TAB UTILISATEURS -->
+    <div id="apanel-users">
+      <div id="admin-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px"></div>
+      <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.45);margin-bottom:10px;font-weight:700">Utilisateurs inscrits</div>
+      <div id="admin-user-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:20px">
+        <div style="color:var(--dim);font-size:10px;text-align:center;padding:20px">Chargement...</div>
       </div>
-      <div id="admin-create-err" style="font-size:9px;color:var(--red);margin-top:8px;display:none"></div>
-      <div id="admin-create-ok"  style="font-size:9px;color:var(--green);margin-top:8px;display:none"></div>
+      <div style="border-top:1px solid rgba(201,168,76,.12);padding-top:18px">
+        <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.45);margin-bottom:12px;font-weight:700">Créer un utilisateur manuellement</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end">
+          <div>
+            <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Pseudo</div>
+            <input id="admin-new-user" class="login-input" type="text" placeholder="Pseudo" style="font-size:11px;padding:8px 10px"/>
+          </div>
+          <div>
+            <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Mot de passe</div>
+            <input id="admin-new-pass" class="login-input" type="text" placeholder="Mot de passe" style="font-size:11px;padding:8px 10px"/>
+          </div>
+          <button onclick="adminCreateUser()" style="background:linear-gradient(135deg,var(--gold),#b8922a);color:#000;border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:8px 14px;cursor:pointer;white-space:nowrap;box-shadow:0 0 10px rgba(201,168,76,.3)">+ Créer</button>
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer;user-select:none">
+          <input type="checkbox" id="admin-no-trial" style="width:13px;height:13px;accent-color:var(--gold);cursor:pointer"/>
+          <span style="font-size:9px;color:var(--dim);letter-spacing:.05em">Sans essai gratuit — <span style="color:var(--gold)">coupon requis dès la première connexion</span></span>
+        </label>
+        <div id="admin-create-err" style="font-size:9px;color:var(--red);margin-top:8px;display:none"></div>
+        <div id="admin-create-ok"  style="font-size:9px;color:var(--green);margin-top:8px;display:none"></div>
+      </div>
     </div>
+
+    <!-- TAB COUPONS -->
+    <div id="apanel-coupons" style="display:none">
+      <!-- Générer un coupon -->
+      <div style="background:#030803;border:1px solid rgba(201,168,76,.15);border-radius:8px;padding:18px;margin-bottom:18px">
+        <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:14px;font-weight:700">⚡ Générer un nouveau coupon</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div style="flex:1">
+            <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Durée (mois)</div>
+            <select id="coupon-duration" class="login-input" style="font-size:11px;padding:8px 10px;background:#020502">
+              <option value="1">1 mois</option>
+              <option value="3" selected>3 mois</option>
+              <option value="6">6 mois</option>
+              <option value="9">9 mois</option>
+            </select>
+          </div>
+          <div style="flex:2">
+            <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Code généré</div>
+            <div id="coupon-preview" style="background:#020502;border:1px solid rgba(201,168,76,.2);border-radius:var(--radius);padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--gold);letter-spacing:.18em;text-align:center;cursor:pointer" onclick="generateCouponCode()" title="Cliquer pour régénérer">——————</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button onclick="generateCouponCode()" style="flex:1;background:#030803;border:1px solid rgba(201,168,76,.2);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:8px;border-radius:var(--radius);cursor:pointer;transition:all .15s" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(201,168,76,.2)'">↺ Nouveau code</button>
+          <button onclick="saveCoupon()" style="flex:2;background:linear-gradient(135deg,var(--gold),#b8922a);color:#000;border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:8px 14px;cursor:pointer;box-shadow:0 0 10px rgba(201,168,76,.3)">💾 Enregistrer le coupon</button>
+        </div>
+        <div id="coupon-save-msg" style="font-size:9px;color:var(--green);margin-top:8px;display:none;text-align:center"></div>
+      </div>
+      <!-- Liste des coupons -->
+      <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.45);margin-bottom:10px;font-weight:700">📋 Coupons actifs</div>
+      <div id="admin-coupon-list" style="display:flex;flex-direction:column;gap:5px">
+        <div style="color:var(--dim);font-size:10px;text-align:center;padding:20px">Chargement...</div>
+      </div>
+    </div>
+
+    <!-- TAB CONFIG -->
+    <div id="apanel-config" style="display:none">
+
+      <!-- Durée d'essai par défaut -->
+      <div style="background:#030803;border:1px solid rgba(201,168,76,.15);border-radius:8px;padding:18px;margin-bottom:16px">
+        <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:14px;font-weight:700">⏱ Durée d'essai par défaut (nouveaux inscrits)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div>
+            <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Unité</div>
+            <select id="cfg-trial-unit" class="login-input" style="font-size:11px;padding:8px 10px;background:#020502" onchange="onTrialUnitChange()">
+              <option value="days">Jours</option>
+              <option value="hours">Heures</option>
+              <option value="unlimited">Illimité</option>
+              <option value="disabled">Désactivé (coupon obligatoire)</option>
+            </select>
+          </div>
+          <div id="cfg-trial-qty-wrap">
+            <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Quantité</div>
+            <input id="cfg-trial-qty" class="login-input" type="number" min="1" value="30" style="font-size:11px;padding:8px 10px" oninput="updateTrialPreview()"/>
+          </div>
+        </div>
+        <div id="cfg-trial-preview" style="background:#020502;border:1px solid rgba(201,168,76,.1);border-radius:5px;padding:8px 12px;font-size:10px;color:var(--gold);text-align:center;margin-bottom:12px">— Chargement —</div>
+        <button onclick="saveGlobalConfig()" style="width:100%;background:linear-gradient(135deg,var(--gold),#b8922a);color:#000;border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:10px;cursor:pointer;box-shadow:0 0 10px rgba(201,168,76,.3)">💾 Enregistrer la configuration</button>
+        <div id="cfg-save-ok" style="font-size:9px;color:var(--green);margin-top:8px;display:none;text-align:center"></div>
+      </div>
+
+      <!-- Réinitialisation globale -->
+      <div style="background:#030803;border:1px solid rgba(255,0,0,.15);border-radius:8px;padding:18px">
+        <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,80,80,.5);margin-bottom:10px;font-weight:700">🔴 Zone Danger — Réinitialisation globale</div>
+        <div style="font-size:9px;color:var(--dim);margin-bottom:14px;line-height:1.6">Remet l'accès de <b style="color:var(--white)">tous les utilisateurs à zéro</b>.<br>Ils devront entrer un nouveau code coupon à la prochaine connexion.</div>
+        <button onclick="resetAllUsersAccess()" style="width:100%;background:transparent;border:2px solid var(--red);color:var(--red);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:10px;border-radius:var(--radius);cursor:pointer;letter-spacing:.07em;text-transform:uppercase;transition:all .2s" onmouseover="this.style.background='rgba(255,0,0,.1)'" onmouseout="this.style.background='transparent'">⚠ Réinitialiser l'accès de tous les utilisateurs</button>
+        <div id="cfg-reset-ok" style="font-size:9px;color:var(--green);margin-top:8px;display:none;text-align:center"></div>
+      </div>
+
+    </div>
+
   </div>
 </div>
 
@@ -1105,10 +1281,12 @@ var ch1,ch2,ch3,ch4,ch5;
 var chartsReady = false;
 var QMOS=[[0,1,2],[3,4,5],[6,7,8],[9,10,11]];
 var DAYS=['Lun','Mar','Mer','Jeu','Ven'];
-var PAGES = ['input','dashboard','history','monthly','quarterly','annual'];
+var PAGES = ['input','dashboard','history','monthly','quarterly','annual','leaderboard'];
 
 // ── PAGE SWITCH ──
 function sw(id) {
+  // En mode spectateur, bloquer l'accès à Input
+  if(VIEW_USER && id === 'input') return;
   PAGES.forEach(function(p) {
     var el = document.getElementById('pg-' + p);
     var btn = document.getElementById('nb-' + p);
@@ -1119,12 +1297,13 @@ function sw(id) {
     }
     btn.classList.toggle('on', p === id);
   });
-  if (id === 'dashboard')  { initCharts(); renderDash(); }
-  if (id === 'history')    renderHist();
-  if (id === 'monthly')    renderMonthly();
-  if (id === 'quarterly')  { initCharts(); renderQuarterly(); }
-  if (id === 'annual')     { initCharts(); renderAnnual(); }
-  if (id === 'input')      renderXLS();
+  if (id === 'dashboard')    { initCharts(); renderDash(); }
+  if (id === 'history')      renderHist();
+  if (id === 'monthly')      renderMonthly();
+  if (id === 'quarterly')    { initCharts(); renderQuarterly(); }
+  if (id === 'annual')       { initCharts(); renderAnnual(); }
+  if (id === 'input')        renderXLS();
+  if (id === 'leaderboard')  renderLeaderboard();
 }
 
 // ── CHARTS INIT ──
@@ -1380,23 +1559,16 @@ function delH(id) {
   save(); renderHist(); renderXLS(); toast('Supprimé.');
 }
 
-// ── SAVE ──
+// ── SAVE ── (mise à jour compteur — le vrai save est fait par fsSaveTrade/saveCFG)
 function save() {
   document.getElementById('hdr-tc').textContent = T.length;
   if(!FIREBASE_OK || !db){
-    // Mode hors-ligne : localStorage uniquement
-    try {
-      localStorage.setItem(userKey('smf_t'),   JSON.stringify(T));
-      localStorage.setItem(userKey('smf_cfg'), JSON.stringify(CFG));
-    } catch(e){ console.warn('localStorage save error:', e); }
-    setSyncStatus('offline');
-  } else {
-    setSyncStatus('syncing');
+    setSyncStatus('error');
+    toast('\u26a0 Firebase indisponible — sauvegarde impossible.', true);
   }
 }
 
 // ── INDICATEUR DE SYNC ──
-var _syncTimer = null;
 function setSyncStatus(state) {
   var dot = document.getElementById('sync-dot');
   var lbl = document.getElementById('sync-lbl');
@@ -1409,20 +1581,18 @@ function setSyncStatus(state) {
   } else if (state === 'syncing') {
     dot.style.background = 'var(--gold)';
     dot.style.boxShadow  = '0 0 8px var(--gold)';
-    lbl.textContent = '...';
+    lbl.textContent = 'Sync...';
     lbl.style.color = 'var(--gold)';
-    clearTimeout(_syncTimer);
-    _syncTimer = setTimeout(function(){ setSyncStatus('ok'); }, 1200);
   } else if (state === 'error') {
     dot.style.background = 'var(--red)';
     dot.style.boxShadow  = '0 0 8px var(--red)';
     lbl.textContent = 'Erreur';
     lbl.style.color = 'var(--red)';
-  } else { // offline / local
-    dot.style.background = '#666';
-    dot.style.boxShadow  = 'none';
-    lbl.textContent = 'Local';
-    lbl.style.color = '#666';
+  } else {
+    dot.style.background = 'var(--red)';
+    dot.style.boxShadow  = '0 0 8px var(--red)';
+    lbl.textContent = 'Hors ligne';
+    lbl.style.color = 'var(--red)';
   }
 }
 
@@ -1435,18 +1605,14 @@ function adjXYr(d) { XYR += d; renderXLS(); }
 var CFG = {};
 function saveCFG() {
   if(isDemo()||!CURRENT_USER) return;
-  if(!FIREBASE_OK || !db){
-    try { localStorage.setItem(userKey('smf_cfg'), JSON.stringify(CFG)); } catch(e){}
-    setSyncStatus('offline');
-    return;
-  }
+  if(!FIREBASE_OK || !db){ setSyncStatus('error'); toast('\u26a0 Firebase indisponible — config non sauvegard\xe9e.', true); return; }
   setSyncStatus('syncing');
   fsCfgRef().set({cfg: CFG}, {merge: true}).then(function(){
     setSyncStatus('ok');
   }).catch(function(e){
     console.error('FS cfg error:',e);
     setSyncStatus('error');
-    try { localStorage.setItem(userKey('smf_cfg'), JSON.stringify(CFG)); } catch(e2){}
+    toast('\u26a0 Erreur sauvegarde config: ' + e.message, true);
   });
 }
 function getCFG(moKey) { return CFG[moKey] || {bal:null, risk:null}; }
@@ -1913,6 +2079,7 @@ function closeInpDrawer() {
 
 function delFromDrawer(id) {
   if (!confirm('Supprimer ce trade ?')) return;
+  fsDeleteTrade(id);
   T = T.filter(function(t){ return t.id !== id; });
   save();
   if (INP_DRW_MO !== null) openInpDrawer(INP_DRW_MO);
@@ -2565,9 +2732,74 @@ function seed(){
       });
     }
   });
-  localStorage.setItem('smf_t',JSON.stringify(T));
 }
 
+// ── EXPORT JSON (backup complet) ──
+function exportJSON() {
+  if(!T.length && !Object.keys(CFG).length){ toast('Aucune donnée à exporter.', true); return; }
+  var backup = { version: 1, exportedAt: new Date().toISOString(), user: CURRENT_USER, trades: T, cfg: CFG };
+  var a = document.createElement('a');
+  a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(backup, null, 2));
+  a.download = 'smf_backup_' + CURRENT_USER + '_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  toast('\u2193 Backup JSON téléchargé (' + T.length + ' trades) !');
+}
+
+// ── IMPORT JSON (restauration) ──
+function importJSON() {
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json,application/json';
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      try {
+        var data = JSON.parse(ev.target.result);
+        if (!data.trades || !Array.isArray(data.trades)) { toast('\u26a0 Fichier JSON invalide.', true); return; }
+        if (!confirm('Importer ' + data.trades.length + ' trades ?\nCela remplacera toutes vos données actuelles.')) return;
+        if (!FIREBASE_OK || !db) { toast('\u26a0 Firebase indisponible — import impossible.', true); return; }
+        setSyncStatus('syncing');
+        // Supprimer toutes les données existantes
+        var p1 = fsTradesRef().get().then(function(snap){
+          var batch = db.batch();
+          snap.forEach(function(d){ batch.delete(d.ref); });
+          return batch.commit();
+        });
+        p1.then(function(){
+          // Importer tous les trades
+          var batches = [];
+          var items = data.trades;
+          for (var i = 0; i < items.length; i += 400) {
+            var batch = db.batch();
+            items.slice(i, i+400).forEach(function(t){ batch.set(fsTradesRef().doc(String(t.id)), t); });
+            batches.push(batch.commit());
+          }
+          // Importer la config
+          var cfgToImport = data.cfg || {};
+          var p2 = fsCfgRef().set({cfg: cfgToImport});
+          return Promise.all(batches.concat([p2]));
+        }).then(function(){
+          T = data.trades.slice().sort(function(a,b){ return b.id - a.id; });
+          CFG = data.cfg || {};
+          document.getElementById('hdr-tc').textContent = T.length;
+          XYR = new Date().getFullYear();
+          renderXLS();
+          setSyncStatus('ok');
+          toast('\u2713 Import réussi — ' + T.length + ' trades restaurés !');
+        }).catch(function(e){
+          console.error('Import error:', e);
+          setSyncStatus('error');
+          toast('\u26a0 Erreur import: ' + e.message, true);
+        });
+      } catch(err) {
+        toast('\u26a0 Fichier JSON invalide.', true);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
 function clearAll(){
   if(!confirm('Effacer TOUTES les données et repartir de zéro ?'))return;
   fsClearAll();
@@ -2580,7 +2812,7 @@ function clearAll(){
 
 function resetData(){
   if(!confirm('Effacer TOUTES les données et régénérer les trades de test ?'))return;
-  T=[];localStorage.removeItem(userKey('smf_t'));
+  T=[];
   seed();
   document.getElementById('hdr-tc').textContent=T.length;
   XYR=new Date().getFullYear();
@@ -2698,6 +2930,278 @@ var ADMINS = [
 ];
 var CURRENT_USER = '';
 var CURRENT_ROLE  = '';
+var _pendingUser  = '';
+var _pendingRole  = '';
+var VIEW_USER     = null; // null = propre session, string = mode spectateur
+
+// ── RÉFÉRENCE COUPONS FIRESTORE ──
+function fsCouponsRef() { return db ? db.collection('smf_coupons') : null; }
+function fsLeaderboardRef() { return db ? db.collection('smf_leaderboard') : null; }
+
+// ── MISE À JOUR STATS LEADERBOARD ──
+function updateLeaderboardStats(){
+  if(isDemo()||!CURRENT_USER||!FIREBASE_OK||!db) return;
+  var closed = T.filter(function(t){ return t.sts!=='OPEN'; });
+  var wins   = T.filter(function(t){ return t.sts==='WIN'; });
+  // Total R
+  var totalR = 0;
+  closed.forEach(function(t){ var r=getTradeRR(t); if(r!==null) totalR+=r; });
+  // Avg R:R
+  var rrTrades = closed.filter(function(t){ return getTradeRR(t)!==null; });
+  var avgRR = rrTrades.length ? totalR/rrTrades.length : 0;
+  // Win Rate
+  var winRate = closed.length ? Math.round(wins.length/closed.length*100) : 0;
+  // Meilleur mois
+  var byM = {};
+  closed.forEach(function(t){
+    if(!t.date) return;
+    var k = t.date.substring(0,7);
+    if(!byM[k]) byM[k]=0;
+    var r=getTradeRR(t); if(r!==null) byM[k]+=r;
+  });
+  var bestMonthR = 0, bestMonthKey = null;
+  Object.keys(byM).forEach(function(k){ if(byM[k]>bestMonthR){ bestMonthR=byM[k]; bestMonthKey=k; } });
+  // Streak courant
+  var streak = 0, streakType = '';
+  for(var i=0;i<T.length;i++){
+    if(T[i].sts==='OPEN') continue;
+    if(i===0||T[i].sts!==streakType){ streak=1; streakType=T[i].sts; }
+    else streak++;
+    break;
+  }
+  // Calculer la séquence actuelle
+  var curStreak=0, curType='';
+  for(var j=0;j<T.length;j++){
+    if(T[j].sts==='OPEN') continue;
+    if(!curType){ curType=T[j].sts; curStreak=1; }
+    else if(T[j].sts===curType) curStreak++;
+    else break;
+  }
+  fsLeaderboardRef().doc(CURRENT_USER).set({
+    user: CURRENT_USER,
+    role: CURRENT_ROLE,
+    totalR: parseFloat(totalR.toFixed(2)),
+    avgRR: parseFloat(avgRR.toFixed(2)),
+    winRate: winRate,
+    totalTrades: T.length,
+    closedTrades: closed.length,
+    wins: wins.length,
+    bestMonthR: parseFloat(bestMonthR.toFixed(2)),
+    bestMonthKey: bestMonthKey,
+    curStreak: curStreak,
+    curStreakType: curType,
+    updatedAt: Date.now()
+  }).catch(function(e){ console.warn('leaderboard update error:', e); });
+}
+
+// ── COUPON SCREEN ──
+function submitCoupon(){
+  var code = (document.getElementById('coupon-code').value||'').trim().toUpperCase();
+  var errEl = document.getElementById('coupon-err');
+  var okEl  = document.getElementById('coupon-ok');
+  var btn   = document.getElementById('btn-coupon');
+  errEl.classList.remove('show'); okEl.classList.remove('show');
+  if(!code || code.length < 7){ errEl.textContent='⚠ Code invalide (format : 6 lettres + 1 chiffre).'; errEl.classList.add('show'); return; }
+  if(!FIREBASE_OK || !db){ errEl.textContent='⚠ Firebase indisponible.'; errEl.classList.add('show'); return; }
+  btn.classList.add('loading'); btn.textContent='⟳ Vérification...';
+  fsCouponsRef().doc(code).get().then(function(doc){
+    btn.classList.remove('loading'); btn.textContent='🎟 Activer le code';
+    if(!doc.exists){ errEl.textContent='⚠ Code introuvable.'; errEl.classList.add('show'); return; }
+    var data = doc.data();
+    // Code valide — multi-usage autorisé
+    var months  = data.duration || 1;
+    var now     = Date.now();
+    var until   = now + months * 30 * 24 * 60 * 60 * 1000;
+    var untilFmt = new Date(until).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
+    // Incrémenter le compteur d'utilisations + ajouter l'utilisateur à la liste
+    var p1 = fsCouponsRef().doc(code).update({
+      useCount: (data.useCount || 0) + 1,
+      usedBy: firebase.firestore.FieldValue.arrayUnion(_pendingUser),
+      lastUsedAt: now
+    });
+    // Mettre à jour l'accès de l'utilisateur
+    var p2 = fsUserRef(_pendingUser).update({ accessUntil: until });
+    Promise.all([p1,p2]).then(function(){
+      okEl.textContent='✓ Accès activé jusqu\'au ' + untilFmt + ' !';
+      okEl.classList.add('show');
+      spawnNeonBurst && spawnNeonBurst(window.innerWidth/2, window.innerHeight/2);
+      setTimeout(function(){
+        document.getElementById('coupon-screen').classList.remove('show');
+        _startSession(_pendingUser, _pendingRole);
+        _pendingUser=''; _pendingRole='';
+      }, 1400);
+    }).catch(function(e){ errEl.textContent='⚠ Erreur: '+e.message; errEl.classList.add('show'); });
+  }).catch(function(e){
+    btn.classList.remove('loading'); btn.textContent='🎟 Activer le code';
+    errEl.textContent='⚠ Erreur Firebase: '+e.message; errEl.classList.add('show');
+  });
+}
+
+// ── COUPON ADMIN — génération ──
+var _currentCouponCode = '';
+function generateCouponCode(){
+  var letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  var code = '';
+  for(var i=0;i<6;i++) code += letters[Math.floor(Math.random()*letters.length)];
+  var dur = parseInt(document.getElementById('coupon-duration').value)||3;
+  code += dur;
+  _currentCouponCode = code;
+  document.getElementById('coupon-preview').textContent = code;
+  document.getElementById('coupon-save-msg').style.display='none';
+}
+
+function saveCoupon(){
+  if(!_currentCouponCode){ generateCouponCode(); return; }
+  if(!FIREBASE_OK||!db){ toast('\u26a0 Firebase indisponible.',true); return; }
+  var dur = parseInt(document.getElementById('coupon-duration').value)||3;
+  var msgEl = document.getElementById('coupon-save-msg');
+  fsCouponsRef().doc(_currentCouponCode).set({
+    code: _currentCouponCode,
+    duration: dur,
+    useCount: 0,
+    usedBy: [],
+    lastUsedAt: null,
+    createdAt: Date.now(),
+    createdBy: CURRENT_USER
+  }).then(function(){
+    msgEl.textContent = '\u2713 Coupon "'+_currentCouponCode+'" enregistré !';
+    msgEl.style.display='block';
+    loadAdminCoupons();
+    _currentCouponCode='';
+    document.getElementById('coupon-preview').textContent='——————';
+  }).catch(function(e){ toast('\u26a0 Erreur: '+e.message,true); });
+}
+
+function loadAdminCoupons(){
+  var listEl = document.getElementById('admin-coupon-list');
+  if(!listEl) return;
+  if(!db){ listEl.innerHTML='<div style="color:var(--dim);font-size:10px;text-align:center;padding:20px">Firebase non disponible.</div>'; return; }
+  listEl.innerHTML='<div style="color:var(--dim);font-size:10px;text-align:center;padding:12px">Chargement...</div>';
+  fsCouponsRef().orderBy('createdAt','desc').limit(30).get().then(function(snap){
+    if(snap.empty){ listEl.innerHTML='<div style="color:var(--dim);font-size:10px;text-align:center;padding:20px">Aucun coupon.</div>'; return; }
+    var html='';
+    snap.forEach(function(d){
+      var c=d.data();
+      var dt=new Date(c.createdAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+      var useCount = c.useCount || 0;
+      var rawUsedBy = c.usedBy;
+      var usedByArr = Array.isArray(rawUsedBy) ? rawUsedBy : (rawUsedBy ? [rawUsedBy] : []);
+      var usedByList = usedByArr.length ? usedByArr.join(', ') : '';
+      var countColor = useCount > 0 ? 'var(--green)' : 'var(--dim)';
+      html+='<div style="display:flex;flex-direction:column;gap:6px;background:#030803;border:1px solid rgba(201,168,76,.08);border-radius:6px;padding:9px 12px">';
+      html+='<div style="display:flex;align-items:center;gap:10px">';
+      html+='<span style="font-family:JetBrains Mono,monospace;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.14em;flex:1">'+c.code+'</span>';
+      html+='<span style="font-size:8px;color:var(--dim)">'+c.duration+'M · '+dt+'</span>';
+      html+='<span style="font-size:9px;color:'+countColor+';font-weight:700">'+useCount+' utilisation'+(useCount>1?'s':'')+'</span>';
+      html+='<button onclick="deleteCoupon(\''+c.code+'\')" style="background:transparent;border:1px solid rgba(255,0,0,.2);color:var(--red);font-family:JetBrains Mono,monospace;font-size:8px;padding:2px 7px;border-radius:3px;cursor:pointer">×</button>';
+      html+='</div>';
+      if(usedByList) html+='<div style="font-size:8px;color:var(--dim);padding-left:2px">👥 '+usedByList+'</div>';
+      html+='</div>';
+    });
+    listEl.innerHTML=html;
+  }).catch(function(e){ listEl.innerHTML='<div style="color:var(--red);font-size:10px;text-align:center;padding:12px">Erreur: '+e.message+'</div>'; });
+}
+
+function deleteCoupon(code){
+  if(!confirm('Supprimer le coupon "'+code+'" ?')) return;
+  fsCouponsRef().doc(code).delete().then(function(){ loadAdminCoupons(); toast('Coupon supprimé.'); }).catch(function(e){ toast('\u26a0 '+e.message,true); });
+}
+
+function switchAdminTab(tab){
+  var tabs = ['users','coupons','config'];
+  tabs.forEach(function(t){
+    document.getElementById('apanel-'+t).style.display = t===tab ? '' : 'none';
+    var btn = document.getElementById('atab-'+t);
+    btn.style.background = t===tab ? 'rgba(201,168,76,.1)' : 'transparent';
+    btn.style.color      = t===tab ? 'var(--gold)' : 'var(--dim)';
+  });
+  if(tab==='coupons'){ generateCouponCode(); loadAdminCoupons(); }
+  if(tab==='config') { loadGlobalConfig(); }
+}
+
+// ── CONFIG GLOBALE (Firestore: smf_config/defaults) ──
+var GLOBAL_CFG = { trialDuration: 30, trialUnit: 'days' };
+
+function fsGlobalConfigRef(){ return db ? db.collection('smf_config').doc('defaults') : null; }
+
+function loadGlobalConfig(){
+  if(!db) return;
+  fsGlobalConfigRef().get().then(function(doc){
+    if(doc.exists && doc.data()){
+      GLOBAL_CFG = { trialDuration: doc.data().trialDuration || 30, trialUnit: doc.data().trialUnit || 'days' };
+    }
+    // Mettre à jour l'UI si le panneau est ouvert
+    var unitEl = document.getElementById('cfg-trial-unit');
+    var qtyEl  = document.getElementById('cfg-trial-qty');
+    if(unitEl) unitEl.value = GLOBAL_CFG.trialUnit;
+    if(qtyEl)  qtyEl.value  = GLOBAL_CFG.trialDuration;
+    onTrialUnitChange();
+  }).catch(function(e){ console.warn('loadGlobalConfig error:', e); });
+}
+
+function onTrialUnitChange(){
+  var unit = document.getElementById('cfg-trial-unit').value;
+  var wrap  = document.getElementById('cfg-trial-qty-wrap');
+  var disabled = unit==='unlimited' || unit==='disabled';
+  if(wrap) wrap.style.opacity = disabled ? '0.35' : '1';
+  if(wrap) wrap.style.pointerEvents = disabled ? 'none' : '';
+  updateTrialPreview();
+}
+
+function updateTrialPreview(){
+  var unit = document.getElementById('cfg-trial-unit').value;
+  var qty  = parseInt(document.getElementById('cfg-trial-qty').value) || 0;
+  var prev = document.getElementById('cfg-trial-preview');
+  if(!prev) return;
+  if(unit==='unlimited') prev.textContent = '∞ Accès illimité — aucune expiration';
+  else if(unit==='disabled') prev.textContent = '🔒 Aucun essai — coupon obligatoire à la première connexion';
+  else if(unit==='days')  prev.textContent = 'Essai de ' + qty + ' jour' + (qty>1?'s':'') + ' pour chaque nouvel inscrit';
+  else if(unit==='hours') prev.textContent = 'Essai de ' + qty + ' heure' + (qty>1?'s':'') + ' pour chaque nouvel inscrit';
+}
+
+function saveGlobalConfig(){
+  var unit = document.getElementById('cfg-trial-unit').value;
+  var qty  = parseInt(document.getElementById('cfg-trial-qty').value) || 30;
+  var okEl = document.getElementById('cfg-save-ok');
+  if(!db){ toast('\u26a0 Firebase indisponible.',true); return; }
+  GLOBAL_CFG = { trialDuration: qty, trialUnit: unit };
+  fsGlobalConfigRef().set(GLOBAL_CFG).then(function(){
+    okEl.textContent = '\u2713 Configuration enregistrée !';
+    okEl.style.display = 'block';
+    setTimeout(function(){ okEl.style.display='none'; }, 3000);
+  }).catch(function(e){ toast('\u26a0 Erreur: '+e.message, true); });
+}
+
+function calcTrialEnds(){
+  var unit = GLOBAL_CFG.trialUnit || 'days';
+  var qty  = GLOBAL_CFG.trialDuration || 30;
+  var now  = Date.now();
+  if(unit==='unlimited') return 9999999999999;
+  if(unit==='disabled')  return 0; // expiration immédiate → coupon obligatoire
+  if(unit==='hours') return now + qty * 60 * 60 * 1000;
+  return now + qty * 24 * 60 * 60 * 1000; // days
+}
+
+// ── RÉINITIALISER TOUS LES ACCÈS ──
+function resetAllUsersAccess(){
+  if(!confirm('ATTENTION !\n\nCela va expirer l\'accès de TOUS les utilisateurs.\nIls devront entrer un nouveau coupon à la prochaine connexion.\n\nConfirmer ?')) return;
+  if(!db){ toast('\u26a0 Firebase indisponible.',true); return; }
+  var okEl = document.getElementById('cfg-reset-ok');
+  fsUsersRef().get().then(function(snap){
+    if(snap.empty){ toast('Aucun utilisateur à réinitialiser.', false, 'info'); return; }
+    var batch = db.batch();
+    snap.forEach(function(d){
+      batch.update(d.ref, { accessUntil: 0, trialEnds: 0 });
+    });
+    return batch.commit();
+  }).then(function(){
+    okEl.textContent = '\u2713 Accès réinitialisé pour tous les utilisateurs.';
+    okEl.style.display = 'block';
+    setTimeout(function(){ okEl.style.display='none'; }, 4000);
+    loadAdminUsers();
+    toast('\u2713 Tous les accès ont été réinitialisés.');
+  }).catch(function(e){ toast('\u26a0 Erreur: '+e.message, true); });
+}
 
 // ── HASH SHA-256 (mot de passe stocké hashé dans Firestore) ──
 async function sha256(str) {
@@ -2726,11 +3230,11 @@ try {
   db      = firebase.firestore();
   FIREBASE_OK = true;
 } catch(e) {
-  console.warn('Firebase non disponible, mode localStorage activé.', e);
+  console.error('Firebase non disponible — toutes les sauvegardes sont désactivées.', e);
 }
 
-function fsTradesRef()         { return db.collection('smf_recorder').doc(CURRENT_USER).collection('trades'); }
-function fsCfgRef()            { return db.collection('smf_recorder').doc(CURRENT_USER); }
+function fsTradesRef()         { return db.collection('smf_recorder').doc(VIEW_USER||CURRENT_USER).collection('trades'); }
+function fsCfgRef()            { return db.collection('smf_recorder').doc(VIEW_USER||CURRENT_USER); }
 
 function b64ToBlob(b64) {
   var parts = b64.split(',');
@@ -2743,44 +3247,46 @@ function b64ToBlob(b64) {
 
 function fsSaveTrade(trade){
   if(isDemo()||!CURRENT_USER) return;
-  if(!FIREBASE_OK || !db){
-    try { localStorage.setItem(userKey('smf_t'), JSON.stringify(T)); } catch(e){}
-    setSyncStatus('offline');
-    return;
-  }
+  if(!FIREBASE_OK || !db){ setSyncStatus('error'); toast('\u26a0 Firebase indisponible — trade non sauvegard\xe9.', true); return; }
   setSyncStatus('syncing');
   fsTradesRef().doc(String(trade.id)).set(trade).then(function(){
     setSyncStatus('ok');
+    updateLeaderboardStats();
   }).catch(function(e){
     console.error('FS save error:',e);
     setSyncStatus('error');
-    try { localStorage.setItem(userKey('smf_t'), JSON.stringify(T)); } catch(e2){}
-    toast('⚠ Sync cloud échouée — données sauvées en local.', true);
+    toast('\u26a0 Sync cloud \xe9chou\xe9e: ' + e.message, true);
   });
 }
 function fsDeleteTrade(id){
   if(isDemo()||!CURRENT_USER) return;
-  if(!FIREBASE_OK || !db){
-    try { localStorage.setItem(userKey('smf_t'), JSON.stringify(T)); } catch(e){}
-    setSyncStatus('offline');
-    return;
-  }
+  if(!FIREBASE_OK || !db){ setSyncStatus('error'); toast('\u26a0 Firebase indisponible — suppression impossible.', true); return; }
   setSyncStatus('syncing');
   fsTradesRef().doc(String(id)).delete().then(function(){
     setSyncStatus('ok');
+    updateLeaderboardStats();
   }).catch(function(e){
     console.error('FS delete error:',e);
     setSyncStatus('error');
-    try { localStorage.setItem(userKey('smf_t'), JSON.stringify(T)); } catch(e2){}
+    toast('\u26a0 Erreur suppression: ' + e.message, true);
   });
 }
 function fsClearAll(){
-  if(isDemo()||isUser()||!CURRENT_USER) return;
-  // Delete trades
-  fsTradesRef().get().then(function(snap){
+  if(isDemo()||!CURRENT_USER) return;
+  if(!FIREBASE_OK || !db) return;
+  setSyncStatus('syncing');
+  var p1 = fsTradesRef().get().then(function(snap){
     var batch = db.batch();
     snap.forEach(function(d){ batch.delete(d.ref); });
     return batch.commit();
+  });
+  var p2 = fsCfgRef().set({cfg: {}});
+  Promise.all([p1, p2]).then(function(){
+    setSyncStatus('ok');
+  }).catch(function(e){
+    console.error('FS clearAll error:',e);
+    setSyncStatus('error');
+    toast('\u26a0 Erreur lors de la suppression: ' + e.message, true);
   });
 }
 var SESSION_KEY = 'smf_auth_v1';
@@ -2824,6 +3330,7 @@ function _startSession(user, role) {
   document.getElementById('pg-input').style.display='flex';
   loadUserData();
   applyUserUI();
+  loadGlobalConfig();
   spawnNeonBurst(window.innerWidth/2, window.innerHeight/2);
 }
 
@@ -2847,22 +3354,37 @@ function doLogin(){
   }
   btn.classList.add('loading'); btn.textContent='⟳ Vérification...';
   sha256(p).then(function(hash){
-    return fsUserRef(u).get();
-  }).then(function(doc){
-    btn.classList.remove('loading'); btn.textContent='⚡ Connexion';
-    if(!doc.exists){
-      err.textContent='⚠ Identifiants incorrects.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
-      document.getElementById('l-pass').value=''; document.getElementById('l-pass').focus();
-      glitchScreen && glitchScreen(); return;
-    }
-    var data = doc.data();
-    sha256(p).then(function(h){
-      if(h !== data.passHash){
+    return fsUserRef(u).get().then(function(doc){
+      btn.classList.remove('loading'); btn.textContent='⚡ Connexion';
+      if(!doc.exists){
         err.textContent='⚠ Identifiants incorrects.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+        document.getElementById('l-pass').value=''; document.getElementById('l-pass').focus();
+        glitchScreen && glitchScreen(); return;
+      }
+      var data = doc.data();
+      if(hash !== data.passHash){
+        err.textContent='\u26a0 Identifiants incorrects.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
         document.getElementById('l-pass').value=''; document.getElementById('l-pass').focus();
         glitchScreen && glitchScreen();
       } else {
-        _startSession(data.user, data.role || 'user');
+        // Vérifier l'accès (essai / coupon)
+        var now = Date.now();
+        var trialEnds   = (data.trialEnds !== undefined && data.trialEnds !== null) ? data.trialEnds : (data.createdAt + 30*24*60*60*1000);
+        var accessUntil = data.accessUntil || null;
+        var hasAccess   = (accessUntil && accessUntil > now) || (trialEnds > now);
+        if(hasAccess){
+          _startSession(data.user, data.role || 'user');
+        } else {
+          // Accès expiré → écran coupon
+          _pendingUser = data.user;
+          _pendingRole = data.role || 'user';
+          document.getElementById('login-screen').classList.add('hidden');
+          document.getElementById('coupon-screen').classList.add('show');
+          document.getElementById('coupon-code').value='';
+          document.getElementById('coupon-err').classList.remove('show');
+          document.getElementById('coupon-ok').classList.remove('show');
+          setTimeout(function(){ document.getElementById('coupon-code').focus(); }, 100);
+        }
       }
     });
   }).catch(function(e){
@@ -2893,29 +3415,57 @@ function doRegister(){
   if(!FIREBASE_OK || !db)       { showErr('⚠ Service indisponible. Réessayez plus tard.'); return; }
 
   btn.classList.add('loading'); btn.textContent='⟳ Création...';
-  // Vérifier si le pseudo existe déjà
-  fsUserRef(u).get().then(function(doc){
-    if(doc.exists){ btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte'; showErr('⚠ Ce pseudo est déjà pris. Choisissez-en un autre.'); return; }
-    return sha256(p).then(function(hash){
-      return fsUserRef(u).set({
-        user: u,
-        passHash: hash,
-        role: 'user',
-        createdAt: Date.now()
+
+  // 1. Fetch config Firestore en premier
+  var _cfgRef = (db && fsGlobalConfigRef) ? fsGlobalConfigRef() : null;
+  var configPromise = _cfgRef
+    ? _cfgRef.get().then(function(doc){
+        if(doc.exists && doc.data()){
+          GLOBAL_CFG = { trialDuration: doc.data().trialDuration || 30, trialUnit: doc.data().trialUnit || 'days' };
+        }
+      }).catch(function(e){ console.warn('config fetch:', e); })
+    : Promise.resolve();
+
+  configPromise.then(function(){
+    // 2. computedTrialEnds calculé ICI dans le scope partagé
+    var computedTrialEnds = calcTrialEnds();
+    var now = Date.now();
+
+    fsUserRef(u).get().then(function(doc){
+      if(doc.exists){
+        btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte';
+        showErr('⚠ Ce pseudo est déjà pris. Choisissez-en un autre.');
+        return;
+      }
+      return sha256(p).then(function(hash){
+        return fsUserRef(u).set({
+          user: u, passHash: hash, role: 'user',
+          createdAt: now, trialEnds: computedTrialEnds, accessUntil: null
+        });
+      }).then(function(){
+        btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte';
+        ok.textContent='✓ Compte créé ! Connexion en cours...';
+        ok.classList.add('show');
+        document.getElementById('r-pass').value='';
+        document.getElementById('r-pass2').value='';
+        setTimeout(function(){
+          // computedTrialEnds accessible ici (closure du configPromise.then)
+          var hasAccess = computedTrialEnds > Date.now();
+          if(hasAccess){
+            _startSession(u, 'user');
+          } else {
+            _pendingUser = u; _pendingRole = 'user';
+            document.getElementById('coupon-expired-msg').textContent = '🔒 Un code d\'activation est requis pour accéder.';
+            document.getElementById('coupon-screen').classList.add('show');
+          }
+        }, 900);
       });
-    }).then(function(){
+    }).catch(function(e){
       btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte';
-      ok.textContent='✓ Compte créé ! Connexion en cours...';
-      ok.classList.add('show');
-      document.getElementById('r-pass').value='';
-      document.getElementById('r-pass2').value='';
-      setTimeout(function(){ _startSession(u, 'user'); }, 900);
+      console.error(e);
+      showErr('⚠ Erreur lors de l’inscription. Réessayez.');
     });
-  }).catch(function(e){
-    btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte';
-    console.error(e);
-    showErr('⚠ Erreur lors de l’inscription. Réessayez.');
-  });
+  }); // fin configPromise
 }
 
 function doLogout(){
@@ -2924,7 +3474,9 @@ function doLogout(){
   sessionStorage.removeItem('smf_user');
   sessionStorage.removeItem('smf_role');
   CURRENT_USER = ''; CURRENT_ROLE = '';
+  _pendingUser = ''; _pendingRole = '';
   T = [];
+  document.getElementById('coupon-screen').classList.remove('show');
   document.getElementById('l-user').value='';
   document.getElementById('l-pass').value='';
   document.getElementById('login-screen').classList.remove('hidden');
@@ -2948,16 +3500,16 @@ function loadUserData(){
     return;
   }
   if(!FIREBASE_OK || !db){
-    T   = JSON.parse(localStorage.getItem(userKey('smf_t'))   || '[]');
-    CFG = JSON.parse(localStorage.getItem(userKey('smf_cfg')) || '{}');
-    document.getElementById('hdr-tc').textContent = T.length;
+    setSyncStatus('error');
+    toast('\u26a0 Firebase indisponible — impossible de charger les donn\xe9es.', true);
+    T = []; CFG = {};
+    document.getElementById('hdr-tc').textContent = 0;
     XYR = new Date().getFullYear();
     renderXLS();
-    setSyncStatus('offline');
-    toast('⚠ Mode hors-ligne — configurez Firebase.', true);
     return;
   }
-  toast('⟳ Chargement des données...', false, 'info');
+  toast('\u27f3 Chargement des donn\xe9es...', false, 'info');
+  setSyncStatus('syncing');
   var p1 = fsTradesRef().get().then(function(snap){
     T = [];
     snap.forEach(function(d){ T.push(d.data()); });
@@ -2966,23 +3518,21 @@ function loadUserData(){
   var p2 = fsCfgRef().get().then(function(doc){
     CFG = (doc.exists && doc.data() && doc.data().cfg) ? doc.data().cfg : {};
   });
-  var p3 = Promise.resolve();
-  Promise.all([p1,p2,p3]).then(function(){
+  Promise.all([p1,p2]).then(function(){
     document.getElementById('hdr-tc').textContent = T.length;
     XYR = new Date().getFullYear();
     renderXLS();
     setSyncStatus('ok');
-    toast('✓ '+ T.length +' trade(s) chargé(s)', false, 'info');
+    toast('\u2713 '+ T.length +' trade(s) charg\xe9(s)', false, 'info');
+    updateLeaderboardStats();
   }).catch(function(e){
     console.error('Firestore load error:',e);
-    // Fallback localStorage
-    T   = JSON.parse(localStorage.getItem(userKey('smf_t'))   || '[]');
-    CFG = JSON.parse(localStorage.getItem(userKey('smf_cfg')) || '{}');
-    document.getElementById('hdr-tc').textContent = T.length;
+    T = []; CFG = {};
+    document.getElementById('hdr-tc').textContent = 0;
     XYR = new Date().getFullYear();
     renderXLS();
     setSyncStatus('error');
-    toast('⚠ Règles Firebase à configurer — données locales chargées.', true);
+    toast('\u26a0 Erreur Firebase: ' + e.message, true);
   });
 }
 
@@ -2998,32 +3548,41 @@ function applyUserUI(){
     badge.innerHTML = user + roleLabel;
   }
   // Boutons selon rôle
-  var btnVider     = document.getElementById('btn-vider');
-  var btnDemo      = document.getElementById('btn-demo');
+  var btnVider      = document.getElementById('btn-vider');
+  var btnDemo       = document.getElementById('btn-demo');
   var btnAdminPanel = document.getElementById('admin-panel-btn');
+  var btnExport     = document.getElementById('btn-export-json');
+  var btnImport     = document.getElementById('btn-import-json');
   // Init sync indicator
   if(FIREBASE_OK && db) setSyncStatus('syncing');
-  else setSyncStatus('offline');
+  else setSyncStatus('error');
 
   if(role==='admin'){
     if(btnVider)      btnVider.style.display='';
     if(btnDemo)       btnDemo.style.display='none';
-    if(btnAdminPanel) btnAdminPanel.style.display='';
+    if(btnAdminPanel) btnAdminPanel.style.display = (user==='KGB') ? 'inline-flex' : 'none';
+    if(btnExport)     btnExport.style.display='';
+    if(btnImport)     btnImport.style.display='';
   } else if(role==='user'){
     if(btnVider)      btnVider.style.display='none';
     if(btnDemo)       btnDemo.style.display='none';
     if(btnAdminPanel) btnAdminPanel.style.display='none';
+    if(btnExport)     btnExport.style.display='';
+    if(btnImport)     btnImport.style.display='none';
   } else { // demo
     if(btnVider)      btnVider.style.display='none';
     if(btnDemo)       btnDemo.style.display='none';
     if(btnAdminPanel) btnAdminPanel.style.display='none';
+    if(btnExport)     btnExport.style.display='none';
+    if(btnImport)     btnImport.style.display='none';
   }
 }
 
 // ── PANNEAU ADMIN ──
 function openAdminPanel(){
-  if(!isAdmin()) return;
+  if(CURRENT_USER !== 'KGB') return;
   document.getElementById('admin-panel-ovl').style.display='flex';
+  switchAdminTab('users');
   loadAdminUsers();
 }
 function closeAdminPanel(){
@@ -3061,10 +3620,24 @@ function loadAdminUsers(){
     var html = '';
     users.forEach(function(u){
       var dt = u.createdAt ? new Date(u.createdAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'}) : '—';
-      // Utiliser data-username pour éviter les guillemets imbriqués dans onclick
-      html += '<div style="display:flex;align-items:center;gap:10px;background:#030803;border:1px solid rgba(0,255,0,.08);border-radius:6px;padding:10px 14px;margin-bottom:6px">';
+      var now = Date.now();
+      var trialEnds   = u.trialEnds   || (u.createdAt ? u.createdAt + 30*24*60*60*1000 : null);
+      var accessUntil = u.accessUntil || null;
+      var hasAccess   = (accessUntil && accessUntil > now) || (trialEnds && trialEnds > now);
+      var accessLabel, accessColor;
+      if(accessUntil && accessUntil > now){
+        var d = new Date(accessUntil).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
+        accessLabel = '\u2713 Abonné jusqu\'au '+d; accessColor='var(--green)';
+      } else if(trialEnds && trialEnds > now){
+        var dLeft = Math.ceil((trialEnds-now)/(24*60*60*1000));
+        accessLabel = '\u23f1 Essai · '+dLeft+'j restants'; accessColor='var(--gold)';
+      } else {
+        accessLabel = '\u26a0 Accès expiré'; accessColor='var(--red)';
+      }
+      html += '<div style="display:flex;align-items:center;gap:8px;background:#030803;border:1px solid rgba(0,255,0,.08);border-radius:6px;padding:9px 12px;margin-bottom:5px">';
       html += '<div style="font-size:11px;font-weight:700;color:var(--white);flex:1">' + u.user + '</div>';
-      html += '<div style="font-size:8px;color:var(--dim)">' + dt + '</div>';
+      html += '<div style="font-size:7.5px;color:'+accessColor+';font-weight:600">'+accessLabel+'</div>';
+      html += '<div style="font-size:7.5px;color:var(--dim)">'+dt+'</div>';
       html += '<span style="font-size:7px;padding:2px 8px;border-radius:10px;background:rgba(0,255,0,.08);border:1px solid rgba(0,255,0,.2);color:var(--green);font-weight:700;letter-spacing:.06em;text-transform:uppercase">USER</span>';
       html += '<button class="admin-del-btn" data-username="' + u.user + '" style="background:transparent;border:1px solid rgba(255,0,0,.2);color:var(--red);font-family:JetBrains Mono,monospace;font-size:9px;padding:3px 8px;border-radius:3px;cursor:pointer;transition:all .15s">Suppr.</button>';
       html += '</div>';
@@ -3086,6 +3659,7 @@ function loadAdminUsers(){
 function adminCreateUser(){
   var u = document.getElementById('admin-new-user').value.trim();
   var p = document.getElementById('admin-new-pass').value.trim();
+  var noTrial = document.getElementById('admin-no-trial').checked;
   var errEl = document.getElementById('admin-create-err');
   var okEl  = document.getElementById('admin-create-ok');
   errEl.style.display = 'none';
@@ -3104,12 +3678,13 @@ function adminCreateUser(){
       errEl.style.display = 'block'; return;
     }
     return sha256(p).then(function(hash){
-      return fsUserRef(u).set({ user: u, passHash: hash, role: 'user', createdAt: Date.now() });
+      return fsUserRef(u).set({ user: u, passHash: hash, role: 'user', createdAt: Date.now(), trialEnds: noTrial ? 0 : calcTrialEnds(), accessUntil: null });
     }).then(function(){
       okEl.textContent = 'Utilisateur "' + u + '" créé.';
       okEl.style.display = 'block';
       document.getElementById('admin-new-user').value = '';
       document.getElementById('admin-new-pass').value = '';
+      document.getElementById('admin-no-trial').checked = false;
       loadAdminUsers();
     });
   }).catch(function(e){
@@ -3132,6 +3707,146 @@ function adminDeleteUser(username){
   }).catch(function(e){ toast('Erreur: ' + e.message, true); });
 }
 
+
+// ── MODE SPECTATEUR ──
+function viewUserProfile(username){
+  if(username === CURRENT_USER) return; // pas besoin de se voir soi-même
+  VIEW_USER = username;
+  // Afficher banner
+  var banner = document.getElementById('spectator-banner');
+  banner.style.display = 'flex';
+  document.getElementById('spectator-name').textContent = username;
+  // Masquer le bouton Input dans la nav
+  var nbInput = document.getElementById('nb-input');
+  if(nbInput) nbInput.style.opacity = '0.2';
+  if(nbInput) nbInput.style.pointerEvents = 'none';
+  // Réinitialiser les charts pour rerender
+  chartsReady = false;
+  // Charger les données du user cible et aller sur Dashboard
+  loadUserData();
+  sw('dashboard');
+  toast('👁 Consultation de ' + username + ' — Lecture seule', false, 'info');
+}
+
+function exitSpectatorMode(){
+  VIEW_USER = null;
+  // Masquer banner
+  var banner = document.getElementById('spectator-banner');
+  banner.style.display = 'none';
+  // Réactiver Input nav
+  var nbInput = document.getElementById('nb-input');
+  if(nbInput) nbInput.style.opacity = '';
+  if(nbInput) nbInput.style.pointerEvents = '';
+  // Recharger ses propres données
+  chartsReady = false;
+  loadUserData();
+  sw('leaderboard');
+  toast('✓ Retour à ta session — ' + CURRENT_USER, false, 'info');
+}
+
+// ── LEADERBOARD ──
+function renderLeaderboard(){
+  var tbody   = document.getElementById('lb-tbody');
+  var podium  = document.getElementById('lb-podium');
+  if(!tbody) return;
+  tbody.innerHTML  = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--dim);font-size:10px">\u23f3 Chargement du classement...</td></tr>';
+  podium.innerHTML = '';
+  if(!FIREBASE_OK||!db){ tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--red);font-size:10px">\u26a0 Firebase indisponible.</td></tr>'; return; }
+
+  fsLeaderboardRef().get().then(function(snap){
+    var rows = [];
+    snap.forEach(function(d){ rows.push(d.data()); });
+
+    // Séparer admins et users
+    var adminOrder = ['KGB','SMF'];
+    var admins = [];
+    var users  = [];
+    rows.forEach(function(r){
+      if(r.role==='admin') admins.push(r);
+      else users.push(r);
+    });
+    // Admins dans l'ordre défini, puis users triés par totalR desc
+    admins.sort(function(a,b){ return adminOrder.indexOf(a.user)-adminOrder.indexOf(b.user); });
+    users.sort(function(a,b){ return (b.totalR||0)-(a.totalR||0); });
+
+    var all = admins.concat(users);
+    if(!all.length){
+      tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--dim);font-size:10px">Aucune donn\xe9e disponible.</td></tr>';
+      return;
+    }
+
+    // ── PODIUM (top 3 non-admin classés par R) ──
+    var podiumUsers = users.slice(0,3);
+    var podiumOrder = [1,0,2]; // 2e, 1er, 3e
+    var podiumH = ['80px','110px','60px'];
+    var podiumMedals = ['\ud83e\udd48','\ud83e\udd47','\ud83e\udd49'];
+    var podiumColors = ['rgba(192,192,192,.15)','rgba(201,168,76,.2)','rgba(205,127,50,.12)'];
+    var podiumBorders = ['rgba(192,192,192,.3)','rgba(201,168,76,.5)','rgba(205,127,50,.3)'];
+    podium.innerHTML = '';
+    if(podiumUsers.length >= 2){
+      [1,0,2].forEach(function(pi,vi){
+        var u = podiumUsers[pi];
+        if(!u) return;
+        var rank = pi+1;
+        var medal = ['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'][pi];
+        var h = ['110px','80px','60px'][vi];
+        var bc = podiumBorders[pi];
+        var bg = podiumColors[pi];
+        var rClr = (u.totalR||0)>=0 ? 'var(--green)' : 'var(--red)';
+        podium.innerHTML += '<div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;max-width:180px">'
+          +'<div style="font-size:24px">'+medal+'</div>'
+          +'<div style="font-size:11px;font-weight:700;color:var(--white)">'+u.user+'</div>'
+          +'<div style="font-size:9px;color:var(--dim)">'+u.winRate+'% WR · '+(u.closedTrades||0)+' trades</div>'
+          +'<div style="background:'+bg+';border:1px solid '+bc+';border-radius:8px 8px 0 0;width:100%;height:'+h+';display:flex;align-items:center;justify-content:center">'
+          +'<div style="font-size:20px;font-weight:700;color:'+rClr+'">'+(u.totalR>=0?'+':'')+u.totalR+'R</div>'
+          +'</div>'
+          +'</div>';
+      });
+    }
+
+    // ── TABLEAU ──
+    var html = '';
+    all.forEach(function(u, idx){
+      var rank    = idx+1;
+      var isAdmin = u.role==='admin';
+      var isMe    = u.user === CURRENT_USER;
+      var medal   = rank===1?'\ud83e\udd47':rank===2?'\ud83e\udd48':rank===3?'\ud83e\udd49':'';
+      var rClr    = (u.totalR||0)>=0 ? 'var(--green)' : 'var(--red)';
+      var wrClr   = (u.winRate||0)>=50 ? 'var(--green)' : 'var(--red)';
+      var rowBg   = isMe ? 'rgba(0,255,0,.03)' : isAdmin ? 'rgba(201,168,76,.03)' : '';
+      var rowBdr  = isMe ? '1px solid rgba(0,255,0,.15)' : isAdmin ? '1px solid rgba(201,168,76,.12)' : '1px solid rgba(0,255,0,.06)';
+      var roleBadge = isAdmin
+        ? '<span style="font-size:7px;padding:2px 7px;border-radius:10px;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:var(--gold);font-weight:700;letter-spacing:.05em">\ud83d\udc51 ADMIN</span>'
+        : '<span style="font-size:7px;padding:2px 7px;border-radius:10px;background:rgba(0,255,0,.08);border:1px solid rgba(0,255,0,.2);color:var(--green);font-weight:700;letter-spacing:.05em">TRADER</span>';
+      var meBadge = isMe ? ' <span style="font-size:7px;padding:2px 6px;border-radius:10px;background:rgba(0,204,255,.1);border:1px solid rgba(0,204,255,.3);color:var(--blue);font-weight:700">VOUS</span>' : '';
+      // Streak
+      var streakTxt = u.curStreak && u.curStreakType
+        ? (u.curStreakType==='WIN'
+          ? '<span style="color:var(--green);font-weight:700">+'+u.curStreak+' \u2191</span>'
+          : '<span style="color:var(--red);font-weight:700">-'+u.curStreak+' \u2193</span>')
+        : '<span style="color:var(--dim)">—</span>';
+      // Meilleur mois
+      var bmTxt = u.bestMonthKey
+        ? (function(k){ var p=k.split('-'); return ['Jan','F\xe9v','Mar','Avr','Mai','Jun','Jul','Ao\xfb','Sep','Oct','Nov','D\xe9c'][parseInt(p[1])-1]+' '+p[0]; })(u.bestMonthKey)
+          +' <span style="color:var(--green);font-weight:700">'+(u.bestMonthR>=0?'+':'')+u.bestMonthR+'R</span>'
+        : '<span style="color:var(--dim)">—</span>';
+
+      html += '<tr style="background:'+rowBg+';cursor:'+(isMe?'default':'pointer')+'" '+(isMe?'':' onclick="viewUserProfile(\''+u.user+'\')" onmouseover="if(!'+isMe+')this.style.outline=\'1px solid rgba(201,168,76,.3)\'" onmouseout="this.style.outline=\'\'"')+'>';
+      html += '<td style="padding:10px 14px;border:'+rowBdr+';text-align:center;font-size:13px">'+medal+(medal?'':'<span style="color:var(--dim);font-size:9px">'+rank+'</span>')+'</td>';
+      html += '<td style="padding:10px 14px;border:'+rowBdr+'"><div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;font-weight:700;color:var(--white)">'+u.user+'</span>'+roleBadge+meBadge+'</div></td>';
+      html += '<td style="padding:10px 14px;border:'+rowBdr+';text-align:center;font-size:14px;font-weight:700;color:'+rClr+'">'+(u.totalR>=0?'+':'')+u.totalR+'R</td>';
+      html += '<td style="padding:10px 14px;border:'+rowBdr+';text-align:center;font-size:12px;font-weight:700;color:'+wrClr+'">'+u.winRate+'%</td>';
+      html += '<td style="padding:10px 14px;border:'+rowBdr+';text-align:center;color:var(--mid);font-size:10px">'+u.closedTrades+'<span style="color:var(--dim);font-size:8px"> /'+u.totalTrades+'</span></td>';
+      html += '<td style="padding:10px 14px;border:'+rowBdr+';text-align:center;color:var(--gold);font-weight:700;font-size:11px">'+(u.avgRR>=0?'+':'')+u.avgRR+'R</td>';
+      html += '<td style="padding:10px 14px;border:'+rowBdr+';text-align:center;font-size:10px">'+bmTxt+'</td>';
+      html += '<td style="padding:10px 14px;border:'+rowBdr+';text-align:center;font-size:10px">'+streakTxt+'</td>';
+      html += '</tr>';
+    });
+    tbody.innerHTML = html || '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--dim)">Aucune donn\xe9e.</td></tr>';
+  }).catch(function(e){
+    tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--red);font-size:10px">\u26a0 Erreur: '+e.message+'</td></tr>';
+  });
+}
 
 // ── INIT ──
 window.onload=function(){
