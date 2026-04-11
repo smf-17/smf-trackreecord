@@ -65,40 +65,41 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .matrix-col{position:fixed;top:0;pointer-events:none;z-index:9997;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);opacity:.7;animation:matrixRain var(--dur,1.5s) linear forwards;text-shadow:0 0 8px var(--green)}
 
 /* ─── HEADER ─── */
-#hdr{height:54px;background:linear-gradient(180deg,#020802 0%,#010401 100%);
-  border-bottom:1px solid rgba(0,255,0,.15);display:flex;align-items:center;padding:0 20px;
-  position:relative;z-index:10;flex-shrink:0;gap:0;
+#hdr{height:46px;background:linear-gradient(180deg,#020802 0%,#010401 100%);
+  border-bottom:1px solid rgba(0,255,0,.15);display:flex;align-items:center;padding:0 10px;
+  position:relative;z-index:10;flex-shrink:0;gap:0;overflow:hidden;
   box-shadow:0 0 30px rgba(0,255,0,.08),inset 0 -1px 0 rgba(0,255,0,.1)}
 #hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:.4;
   animation:zap 4s ease-in-out infinite}
-.logo{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;letter-spacing:.1em;
-  color:var(--white);margin-right:28px;white-space:nowrap;display:flex;align-items:center;gap:8px;
-  animation:neonFlicker 6s infinite}
-.logo-icon{width:22px;height:22px;border-radius:5px;
+.logo{font-family:'Syne',sans-serif;font-size:10px;font-weight:800;letter-spacing:.06em;
+  color:var(--white);margin-right:12px;white-space:nowrap;display:flex;align-items:center;gap:5px;
+  animation:neonFlicker 6s infinite;flex-shrink:0}
+.logo-icon{width:16px;height:16px;border-radius:3px;
   background:linear-gradient(135deg,var(--green),#00aa00);
-  display:flex;align-items:center;justify-content:center;font-size:11px;color:#000;font-weight:900;
-  box-shadow:0 0 10px var(--green),0 0 20px rgba(0,255,0,.3)}
+  display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:900;
+  box-shadow:0 0 8px var(--green),0 0 16px rgba(0,255,0,.3)}
 .logo b{color:var(--green);text-shadow:0 0 8px var(--green)}
-.navarea{display:flex;height:100%}
+.navarea{display:flex;height:100%;flex-shrink:0}
 .nb{background:none;border:none;border-bottom:2px solid transparent;
-  color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;
-  letter-spacing:.08em;padding:0 14px;cursor:pointer;text-transform:uppercase;
-  white-space:nowrap;height:100%;transition:color .2s,border-color .2s,text-shadow .2s;display:flex;align-items:center;gap:6px}
+  color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:600;
+  letter-spacing:.04em;padding:0 8px;cursor:pointer;text-transform:uppercase;
+  white-space:nowrap;height:100%;transition:color .2s,border-color .2s,text-shadow .2s;display:flex;align-items:center;gap:3px}
 .nb:hover{color:var(--green);text-shadow:0 0 8px var(--green)}
 .nb.on{color:var(--green);border-bottom-color:var(--green);text-shadow:0 0 10px var(--green),0 0 20px rgba(0,255,0,.4)}
-.nb-icon{font-size:11px;opacity:.7}
-.hdrr{margin-left:auto;display:flex;align-items:center;gap:10px}
+.nb-icon{font-size:9px;opacity:.7}
+.hdrr{margin-left:auto;display:flex;align-items:center;gap:5px;flex-shrink:0}
 @keyframes syncPulse{0%,100%{opacity:1}50%{opacity:.3}}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--green);
-  box-shadow:0 0 8px var(--green),0 0 16px rgba(0,255,0,.5);animation:bk 2s infinite}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;
+  box-shadow:0 0 6px var(--green),0 0 12px rgba(0,255,0,.5);animation:bk 2s infinite}
 .tc{background:#030803;border:1px solid rgba(0,255,0,.2);border-radius:20px;
-  font-size:9.5px;color:var(--mid);padding:3px 11px;letter-spacing:.04em}
+  font-size:8px;color:var(--mid);padding:2px 7px;letter-spacing:.02em;white-space:nowrap}
 .tc span{color:var(--green);font-weight:700;text-shadow:0 0 6px var(--green)}
-.hd{font-size:8.5px;color:var(--dim);letter-spacing:.05em}
+.hd{display:none}
 .btn-reset{background:transparent;border:1px solid rgba(0,255,0,.15);color:var(--dim);
-  font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:600;letter-spacing:.07em;
-  text-transform:uppercase;padding:4px 10px;border-radius:4px;cursor:pointer;transition:all .15s}
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+  width:26px;height:26px;border-radius:4px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0}
 .btn-reset:hover{border-color:var(--green);color:var(--green);box-shadow:0 0 8px rgba(0,255,0,.2)}
 
 /* ─── BODY ─── */
@@ -392,6 +393,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .inp-mc-res .rv.pos{color:var(--green)}.inp-mc-res .rv.neg{color:var(--red)}.inp-mc-res .rv.go{color:var(--gold)}
 .inp-mc-hint{font-size:7px;color:var(--dim);opacity:0;transition:opacity .2s;text-align:right;margin-top:5px;letter-spacing:.04em}
 .inp-mc:hover .inp-mc-hint{opacity:1}
+.btn-clear-month{position:absolute;top:10px;right:10px;background:transparent;border:1px solid rgba(255,0,0,.2);color:var(--red);font-family:'JetBrains Mono',monospace;font-size:11px;width:22px;height:22px;border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:all .15s;padding:0;line-height:1}
+.inp-mc:hover .btn-clear-month{opacity:1}
+.btn-clear-month:hover{background:var(--red2);border-color:var(--red);box-shadow:0 0 8px rgba(255,0,0,.3);transform:rotate(-30deg)}
 
 /* ─── MONTH DETAIL DRAWER ─── */
 .inp-drawer-ovl{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);backdrop-filter:blur(4px);display:none}
@@ -608,9 +612,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .role-badge.user{background:rgba(0,255,0,.08);border:1px solid rgba(0,255,0,.2);color:var(--green)}
 /* Panel admin */
 #admin-panel-btn{display:none}
-.admin-panel-tag{font-size:7.5px;padding:3px 9px;border-radius:3px;
+.admin-panel-tag{font-size:10px;width:26px;height:26px;border-radius:3px;display:flex;align-items:center;justify-content:center;padding:0;
   background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);
-  color:rgba(201,168,76,.7);letter-spacing:.07em;text-transform:uppercase;cursor:pointer;transition:all .15s}
+  color:rgba(201,168,76,.7);cursor:pointer;transition:all .15s;flex-shrink:0}
 .admin-panel-tag:hover{border-color:var(--gold);color:var(--gold)}
 
 /* ─── COUPON SCREEN ─── */
@@ -641,9 +645,9 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .btn-logout{
   background:transparent;border:1px solid rgba(255,0,0,.2);
   color:rgba(255,80,80,.7);
-  font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:600;
-  letter-spacing:.07em;text-transform:uppercase;
-  padding:4px 10px;border-radius:4px;cursor:pointer;transition:all .15s;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;
+  width:26px;height:26px;border-radius:4px;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;
 }
 .btn-logout:hover{border-color:var(--red);color:var(--red);box-shadow:0 0 8px rgba(255,0,0,.2)}
 
@@ -752,12 +756,11 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
       <span id="sync-lbl" style="font-size:8px;color:#666;transition:color .4s">—</span>
     </div>
     <div class="tc" style="border-color:rgba(0,255,0,.15)"><span id="hdr-user-badge" style="color:var(--green);font-weight:700"></span></div>
-    <button id="btn-vider" class="btn-reset" onclick="clearAll()" title="Effacer toutes les données">↺ Vider</button>
-    <button id="btn-demo" class="btn-reset" onclick="resetData()" title="Charger les données de démo" style="border-color:rgba(201,168,76,.3);color:var(--gold)">⊞ Démo</button>
-    <button id="btn-export-json" class="btn-reset" onclick="exportJSON()" title="Exporter backup JSON" style="border-color:rgba(0,204,255,.3);color:var(--blue)">↓ Backup</button>
-    <button id="btn-import-json" class="btn-reset" onclick="importJSON()" title="Importer depuis un backup JSON" style="border-color:rgba(0,204,255,.2);color:var(--blue)">↑ Import</button>
+    <button id="btn-demo" class="btn-reset" onclick="resetData()" title="⊞ Démo — Charger données de test" style="border-color:rgba(201,168,76,.3);color:var(--gold)">⊞</button>
+    <button id="btn-export-json" class="btn-reset" onclick="exportJSON()" title="↓ Backup — Exporter JSON" style="border-color:rgba(0,204,255,.3);color:var(--blue)">↓</button>
+    <button id="btn-import-json" class="btn-reset" onclick="importJSON()" title="↑ Import — Importer JSON" style="border-color:rgba(0,204,255,.2);color:var(--blue)">↑</button>
     <button id="admin-panel-btn" class="admin-panel-tag" onclick="openAdminPanel()" title="Panneau administrateur">👑 Admin</button>
-    <button class="btn-logout" onclick="doLogout()" title="Se déconnecter">⏻ Logout</button>
+    <button class="btn-logout" onclick="doLogout()" title="Se déconnecter">⏻</button>
     <div class="hd" id="hdr-d"></div>
   </div>
 </div>
@@ -1015,12 +1018,16 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
         <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:14px;font-weight:700">⚡ Générer un nouveau coupon</div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
           <div style="flex:1">
-            <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Durée (mois)</div>
-            <select id="coupon-duration" class="login-input" style="font-size:11px;padding:8px 10px;background:#020502">
-              <option value="1">1 mois</option>
-              <option value="3" selected>3 mois</option>
-              <option value="6">6 mois</option>
-              <option value="9">9 mois</option>
+            <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Durée</div>
+            <input id="coupon-duration" class="login-input" type="number" min="1" value="3" placeholder="Ex: 3" style="font-size:13px;font-weight:700;padding:8px 10px;background:#020502" oninput="generateCouponCode()"/>
+          </div>
+          <div style="flex:1">
+            <div style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:5px">Période</div>
+            <select id="coupon-unit" class="login-input" style="font-size:11px;padding:8px 10px;background:#020502" onchange="generateCouponCode()">
+              <option value="hours">Heures</option>
+              <option value="days">Jours</option>
+              <option value="weeks">Semaines</option>
+              <option value="months" selected>Mois</option>
             </select>
           </div>
           <div style="flex:2">
@@ -1065,6 +1072,35 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
         <div id="cfg-trial-preview" style="background:#020502;border:1px solid rgba(201,168,76,.1);border-radius:5px;padding:8px 12px;font-size:10px;color:var(--gold);text-align:center;margin-bottom:12px">— Chargement —</div>
         <button onclick="saveGlobalConfig()" style="width:100%;background:linear-gradient(135deg,var(--gold),#b8922a);color:#000;border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:10px;cursor:pointer;box-shadow:0 0 10px rgba(201,168,76,.3)">💾 Enregistrer la configuration</button>
         <div id="cfg-save-ok" style="font-size:9px;color:var(--green);margin-top:8px;display:none;text-align:center"></div>
+      </div>
+
+      <!-- Couleurs des graphiques -->
+      <div style="background:#030803;border:1px solid rgba(201,168,76,.15);border-radius:8px;padding:18px;margin-bottom:16px">
+        <div style="font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:14px;font-weight:700">🎨 Couleurs des graphiques & diagrammes</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <label style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)">✓ Win</label>
+            <input id="clr-win" type="color" value="#2ecc8a" oninput="previewChartColors()" style="width:36px;height:36px;border:2px solid rgba(201,168,76,.2);border-radius:8px;background:none;cursor:pointer;padding:2px"/>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <label style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)">✗ Loss</label>
+            <input id="clr-loss" type="color" value="#e05c6a" oninput="previewChartColors()" style="width:36px;height:36px;border:2px solid rgba(201,168,76,.2);border-radius:8px;background:none;cursor:pointer;padding:2px"/>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <label style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)">◉ Open</label>
+            <input id="clr-open" type="color" value="#5b8af5" oninput="previewChartColors()" style="width:36px;height:36px;border:2px solid rgba(201,168,76,.2);border-radius:8px;background:none;cursor:pointer;padding:2px"/>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <label style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)">▲ Positif</label>
+            <input id="clr-pos" type="color" value="#2ecc8a" oninput="previewChartColors()" style="width:36px;height:36px;border:2px solid rgba(201,168,76,.2);border-radius:8px;background:none;cursor:pointer;padding:2px"/>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+            <label style="font-size:7px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)">▼ Négatif</label>
+            <input id="clr-neg" type="color" value="#e05c6a" oninput="previewChartColors()" style="width:36px;height:36px;border:2px solid rgba(201,168,76,.2);border-radius:8px;background:none;cursor:pointer;padding:2px"/>
+          </div>
+        </div>
+        <div id="clr-preview-bar" style="width:100%;height:8px;border-radius:4px;background:linear-gradient(90deg,#2ecc8a,#e05c6a,#5b8af5);transition:background .3s;margin-bottom:10px"></div>
+        <button onclick="resetChartColors()" style="width:100%;background:transparent;border:1px solid rgba(201,168,76,.2);color:rgba(201,168,76,.6);font-family:JetBrains Mono,monospace;font-size:8px;font-weight:600;padding:6px;border-radius:var(--radius);cursor:pointer;letter-spacing:.07em;text-transform:uppercase" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(201,168,76,.2)';this.style.color='rgba(201,168,76,.6)'">↺ Couleurs par défaut</button>
       </div>
 
       <!-- Réinitialisation globale -->
@@ -1178,13 +1214,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
   </div>
   <div class="dp-body">
     <div class="dp-charts-wide">
-      <div class="dp-card"><div class="dp-ct">📈 Évolution R cumulé</div><div class="dp-ch"><canvas id="dp-m-ch1"></canvas></div></div>
+      <div class="dp-card"><div class="dp-ct">📈 Évolution % cumulé</div><div class="dp-ch"><canvas id="dp-m-ch1"></canvas></div></div>
       <div class="dp-card"><div class="dp-ct">📊 R:R par trade</div><div class="dp-ch"><canvas id="dp-m-ch2"></canvas></div></div>
     </div>
     <div class="dp-charts-3">
       <div class="dp-card"><div class="dp-ct">🎯 Win / Loss / Open</div><div style="position:relative;height:160px"><canvas id="dp-m-ch3"></canvas></div></div>
       <div class="dp-card"><div class="dp-ct">💱 Perf. par paire</div><div class="dp-ch sm"><canvas id="dp-m-ch4"></canvas></div></div>
-      <div class="dp-card"><div class="dp-ct">📅 R par jour de semaine</div><div class="dp-ch sm"><canvas id="dp-m-ch5"></canvas></div></div>
+      <div class="dp-card"><div class="dp-ct">⏱ Durée des trades</div><div class="dp-ch sm"><canvas id="dp-m-ch5"></canvas></div></div>
     </div>
     <div class="dp-charts-wide2">
       <div class="dp-card">
@@ -1217,13 +1253,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
   </div>
   <div class="dp-body">
     <div class="dp-charts-wide">
-      <div class="dp-card"><div class="dp-ct">📈 Évolution R cumulé</div><div class="dp-ch"><canvas id="dp-q-ch1"></canvas></div></div>
+      <div class="dp-card"><div class="dp-ct">📈 Évolution % cumulé</div><div class="dp-ch"><canvas id="dp-q-ch1"></canvas></div></div>
       <div class="dp-card"><div class="dp-ct">📊 R par mois du trimestre</div><div class="dp-ch"><canvas id="dp-q-ch2"></canvas></div></div>
     </div>
     <div class="dp-charts-3">
       <div class="dp-card"><div class="dp-ct">🎯 Win / Loss / Open</div><div style="position:relative;height:160px"><canvas id="dp-q-ch3"></canvas></div></div>
       <div class="dp-card"><div class="dp-ct">💱 Perf. par paire</div><div class="dp-ch sm"><canvas id="dp-q-ch4"></canvas></div></div>
-      <div class="dp-card"><div class="dp-ct">📅 R par jour de semaine</div><div class="dp-ch sm"><canvas id="dp-q-ch5"></canvas></div></div>
+      <div class="dp-card"><div class="dp-ct">⏱ Durée des trades</div><div class="dp-ch sm"><canvas id="dp-q-ch5"></canvas></div></div>
     </div>
     <div class="dp-charts-2">
       <div class="dp-card">
@@ -1251,13 +1287,13 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
   </div>
   <div class="dp-body">
     <div class="dp-charts-wide">
-      <div class="dp-card"><div class="dp-ct">📈 Évolution R cumulé (année)</div><div class="dp-ch tall"><canvas id="dp-y-ch1"></canvas></div></div>
+      <div class="dp-card"><div class="dp-ct">📈 Évolution % cumulé (année)</div><div class="dp-ch tall"><canvas id="dp-y-ch1"></canvas></div></div>
       <div class="dp-card"><div class="dp-ct">📊 R par mois</div><div class="dp-ch tall"><canvas id="dp-y-ch2"></canvas></div></div>
     </div>
     <div class="dp-charts-3">
       <div class="dp-card"><div class="dp-ct">🎯 Win / Loss / Open</div><div style="position:relative;height:160px"><canvas id="dp-y-ch3"></canvas></div></div>
       <div class="dp-card"><div class="dp-ct">💱 Perf. par paire</div><div class="dp-ch sm"><canvas id="dp-y-ch4"></canvas></div></div>
-      <div class="dp-card"><div class="dp-ct">📅 R par jour de semaine</div><div class="dp-ch sm"><canvas id="dp-y-ch5"></canvas></div></div>
+      <div class="dp-card"><div class="dp-ct">⏱ Durée des trades</div><div class="dp-ch sm"><canvas id="dp-y-ch5"></canvas></div></div>
     </div>
     <div class="dp-charts-3">
       <div class="dp-card"><div class="dp-ct">🗓 Par trimestre</div><div id="dp-y-quarters"></div></div>
@@ -1313,6 +1349,11 @@ function initCharts() {
   var opt = {
     plugins: { legend: { display: false } },
     responsive: true, maintainAspectRatio: false,
+    animation: {
+      duration: 900,
+      easing: 'easeOutQuart',
+      delay: function(ctx) { return ctx.dataIndex * 40; }
+    },
     scales: {
       x: { grid: { color: '#1e2235' }, ticks: { color: '#4e5470', font: { family: 'JetBrains Mono', size: 9 } } },
       y: { grid: { color: '#1e2235' }, ticks: { color: '#4e5470', font: { family: 'JetBrains Mono', size: 9 } } }
@@ -1323,7 +1364,7 @@ function initCharts() {
   ch2 = new Chart(document.getElementById('ch2'), { type:'bar', data:{labels:[],datasets:[{data:[],borderRadius:3}]}, options:cloneOpt() });
   ch3 = new Chart(document.getElementById('ch3'), { type:'doughnut',
     data:{labels:['Win','Loss','Open'],datasets:[{data:[0,0,0],backgroundColor:['#2ecc8a','#e05c6a','#5b8af5'],borderWidth:0,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:true,position:'bottom',labels:{color:'#7880a0',font:{family:'JetBrains Mono',size:9},boxWidth:8,padding:8}}}}
+    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',animation:{animateRotate:true,animateScale:true,duration:1000,easing:'easeOutBack'},plugins:{legend:{display:true,position:'bottom',labels:{color:'#7880a0',font:{family:'JetBrains Mono',size:9},boxWidth:8,padding:8}}}}
   });
   ch4 = new Chart(document.getElementById('ch4'), { type:'bar', data:{labels:['Q1','Q2','Q3','Q4'],datasets:[{data:[0,0,0,0],borderRadius:4}]}, options:cloneOpt() });
   ch5 = new Chart(document.getElementById('ch5'), { type:'bar', data:{labels:[],datasets:[{data:[],borderRadius:4}]}, options:cloneOpt() });
@@ -1759,7 +1800,10 @@ function renderXLS() {
 
     html += '</div>'; // inp-mc-cfg
 
-    if (hasTrades) html += '<div class="inp-mc-hint">Voir les trades →</div>';
+    if (hasTrades) {
+      html += '<div class="inp-mc-hint">Voir les trades →</div>';
+      html += '<button class="btn-clear-month" onclick="event.stopPropagation();clearMonth(\''+moKey+'\','+mo+')" title="Vider ce mois">↺</button>';
+    }
     html += '</div>'; // inp-mc
   }
   grid.innerHTML = html;
@@ -2189,7 +2233,7 @@ function renderDash() {
       mLbl=last12.map(function(k){var p=k.split('-');return M3[parseInt(p[1])-1];}),
       mVal=last12.map(function(k){return parseFloat(byM[k].toFixed(2));});
   ch1.data.labels=mLbl; ch1.data.datasets[0].data=mVal;
-  ch1.data.datasets[0].backgroundColor=mVal.map(function(v){return v>=0?'rgba(46,204,138,.7)':'rgba(224,92,106,.7)';});
+  ch1.data.datasets[0].backgroundColor=mVal.map(function(v){return v>=0?CHART_COLORS.pos:CHART_COLORS.neg;});
   ch1.update();
   var rrB={};
   wRR.forEach(function(t){var rr=getTradeRR(t);if(rr===null)return;var b=(Math.round(rr*2)/2).toFixed(1)+'R';rrB[b]=(rrB[b]||0)+1;});
@@ -2348,6 +2392,24 @@ function byDow(trades){
   });
   return{r:r,c:c};
 }
+function byDuration(trades){
+  // Buckets: Intraday(0j), 1j, 2j, 3-5j, 6-10j, 10+j
+  var labels=['Intraday','1 jour','2 jours','3-5 jours','6-10 jours','10+ jours'];
+  var counts=[0,0,0,0,0,0];
+  var rTot=[0,0,0,0,0,0];
+  trades.forEach(function(t){
+    if(getTradeRR(t)===null) return;
+    var days=0;
+    if(t.date && t.dateEnd){
+      var d1=new Date(t.date+'T12:00:00'), d2=new Date(t.dateEnd+'T12:00:00');
+      days=Math.max(0,Math.round((d2-d1)/86400000));
+    }
+    var idx=days===0?0:days===1?1:days===2?2:days<=5?3:days<=10?4:5;
+    counts[idx]++;
+    rTot[idx]+=(getTradeRR(t)||0);
+  });
+  return{labels:labels,counts:counts,rTot:rTot};
+}
 function byPair(trades){
   var map={};
   trades.forEach(function(t){
@@ -2374,6 +2436,7 @@ function mkDpChart(id,type,labels,data,colors,extraOpts){
     else if(colors)ds.backgroundColor=colors;
   }
   var opts=extraOpts||{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    animation:{duration:800,easing:'easeOutQuart',delay:function(ctx){return ctx.dataIndex*35;}},
     scales:{x:{grid:{color:'#1e2235'},ticks:{color:'#4e5470',font:{family:'JetBrains Mono',size:8},maxRotation:45}},
             y:{grid:{color:'#1e2235'},ticks:{color:'#4e5470',font:{family:'JetBrains Mono',size:8}}}}};
   return new Chart(ctx,{type:type,data:{labels:labels,datasets:[ds]},options:opts});
@@ -2381,8 +2444,30 @@ function mkDpChart(id,type,labels,data,colors,extraOpts){
 function mkDonut(id,labels,data,colors){
   var ctx=document.getElementById(id);if(!ctx)return;
   var ex=Chart.getChart(ctx);if(ex)ex.destroy();
-  new Chart(ctx,{type:'doughnut',data:{labels:labels,datasets:[{data:data,backgroundColor:colors||['#2ecc8a','#e05c6a','#5b8af5'],borderWidth:0,hoverOffset:4}]},
+  var wins=data[0]||0, losses=data[1]||0;
+  var winRate=(wins+losses)>0?Math.round(wins/(wins+losses)*100):null;
+  var autoColors=[CHART_COLORS.win,CHART_COLORS.loss,CHART_COLORS.open];
+  var centerPlugin={id:'center_'+id,afterDraw:function(chart){
+    if(winRate===null)return;
+    var ca=chart.chartArea; if(!ca)return;
+    var cx=(ca.left+ca.right)/2, cy=(ca.top+ca.bottom)/2;
+    var c=chart.ctx; c.save();
+    c.textAlign='center'; c.textBaseline='middle';
+    c.font='bold 22px JetBrains Mono,monospace';
+    c.fillStyle=winRate>=50?CHART_COLORS.win:CHART_COLORS.loss;
+    c.shadowColor=c.fillStyle; c.shadowBlur=12;
+    c.fillText(winRate+'%',cx,cy-8);
+    c.shadowBlur=0;
+    c.font='600 7px JetBrains Mono,monospace';
+    c.fillStyle='#4e5470'; c.letterSpacing='1px';
+    c.fillText('WIN RATE',cx,cy+10);
+    c.restore();
+  }};
+  new Chart(ctx,{type:'doughnut',
+    plugins:[centerPlugin],
+    data:{labels:labels,datasets:[{data:data,backgroundColor:colors||autoColors,borderWidth:0,hoverOffset:4}]},
     options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+      animation:{animateRotate:true,animateScale:true,duration:1000,easing:'easeOutBack'},
       plugins:{legend:{display:true,position:'bottom',labels:{color:'#7880a0',font:{family:'JetBrains Mono',size:9},boxWidth:8,padding:6}}}}});
 }
 function mkStreak(id,trades){
@@ -2414,24 +2499,43 @@ function commonStats(s){
     statRow('Total R',s.wRR.length?s.totalR.toFixed(2)+'R':'—',s.totalR>=0?'up':'dn');
 }
 function commonCharts(pfx,s){
-  // cumul R line
-  var cL=['Début'],cV=[0],run=0;
-  s.wRR.forEach(function(t){run+=(getTradeRR(t)||0);cL.push(t.pair);cV.push(parseFloat(run.toFixed(3)));});
-  var lc=s.totalR>=0?'#2ecc8a':'#e05c6a';
+  // ch1 — Évolution % cumulée (R × risque% mensuel)
+  var cL=['Début'],cV=[0],runPct=0;
+  s.wRR.forEach(function(t){
+    var rr=getTradeRR(t)||0;
+    var moKey=t.date?t.date.substring(0,7):null;
+    var risk=moKey&&CFG[moKey]&&CFG[moKey].risk ? CFG[moKey].risk : 1; // fallback 1%
+    runPct+=rr*risk;
+    cL.push(t.pair);
+    cV.push(parseFloat(runPct.toFixed(3)));
+  });
+  var lc=runPct>=0?'#2ecc8a':'#e05c6a';
   var ctx1=document.getElementById('dp-'+pfx+'-ch1');var ex1=Chart.getChart(ctx1);if(ex1)ex1.destroy();
   new Chart(ctx1,{type:'line',data:{labels:cL,datasets:[{data:cV,borderColor:lc,backgroundColor:lc+'22',fill:true,tension:.35,pointRadius:3,pointBorderColor:'transparent',borderWidth:2,pointBackgroundColor:cV.map(function(v){return v>=0?'#2ecc8a':'#e05c6a';})}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:1400,easing:'easeInOutQuart'},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return (c.parsed.y>=0?'+':'')+c.parsed.y.toFixed(2)+'%';}}}},
       scales:{x:{grid:{color:'#1e2235'},ticks:{color:'#4e5470',font:{family:'JetBrains Mono',size:8},maxRotation:50,maxTicksLimit:18}},
-              y:{grid:{color:'#1e2235'},ticks:{color:'#4e5470',font:{family:'JetBrains Mono',size:8}}}}}});
+              y:{grid:{color:'#1e2235'},ticks:{color:'#4e5470',font:{family:'JetBrains Mono',size:8},callback:function(v){return v+'%';}}}}}});
   // donut
   mkDonut('dp-'+pfx+'-ch3',['Win','Loss','Open'],[s.wins.length,s.losses.length,s.open.length]);
   // by pair
   var pm=byPair(s.wRR);var pK=Object.keys(pm).sort(function(a,b){return pm[b].r-pm[a].r;});
   var pV=pK.map(function(k){return parseFloat(pm[k].r.toFixed(2));});
-  mkDpChart('dp-'+pfx+'-ch4','bar',pK,pV,pV.map(function(v){return v>=0?'rgba(46,204,138,.7)':'rgba(224,92,106,.7)';}));
-  // by dow
-  var dw=byDow(s.wRR);
-  mkDpChart('dp-'+pfx+'-ch5','bar',DAYS,dw.r.map(function(v){return parseFloat(v.toFixed(2));}),dw.r.map(function(v){return v>=0?'rgba(201,168,76,.7)':'rgba(224,92,106,.7)';}));
+  mkDpChart('dp-'+pfx+'-ch4','bar',pK,pV,pV.map(function(v){return v>=0?CHART_COLORS.pos:CHART_COLORS.neg;}));
+  // ch5 — Durée par trade (chaque trade avec son nb de jours)
+  var durL=[],durV=[];
+  s.wRR.forEach(function(t){
+    var days=0;
+    if(t.date&&t.dateEnd){
+      var d1=new Date(t.date+'T12:00:00'),d2=new Date(t.dateEnd+'T12:00:00');
+      days=Math.max(0,Math.round((d2-d1)/86400000));
+    }
+    durL.push(t.pair);
+    durV.push(days);
+  });
+  mkDpChart('dp-'+pfx+'-ch5','bar',durL,durV,durV.map(function(v){return v===0?'rgba(100,180,255,.7)':'rgba(201,168,76,.7)';}),
+    {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y===0?'Intraday':c.parsed.y+' jour'+(c.parsed.y>1?'s':'');}}}},
+     scales:{x:{grid:{color:'#1e2235'},ticks:{color:'#4e5470',font:{family:'JetBrains Mono',size:8},maxRotation:50,maxTicksLimit:20}},
+             y:{grid:{color:'#1e2235'},ticks:{color:'#4e5470',font:{family:'JetBrains Mono',size:8},stepSize:1},title:{display:true,text:'Jours',color:'#4e5470',font:{size:8}}}}});
 }
 
 // ── PANEL OPEN/CLOSE ──
@@ -2456,7 +2560,7 @@ function openMDetail(mk){
   // chart 2 — RR par trade : label = paire uniquement
   var bL=s.wRR.map(function(t){ return t.pair; });
   var bV=s.wRR.map(function(t){return parseFloat((getTradeRR(t)||0).toFixed(2));});
-  mkDpChart('dp-m-ch2','bar',bL,bV,bV.map(function(v){return v>=0?'rgba(46,204,138,.75)':'rgba(224,92,106,.75)';}));
+  mkDpChart('dp-m-ch2','bar',bL,bV,bV.map(function(v){return v>=0?CHART_COLORS.pos:CHART_COLORS.neg;}));
   document.getElementById('dp-m-stats').innerHTML=commonStats(s);
   mkStreak('dp-m-streak',trades);
   // trades list
@@ -2492,7 +2596,7 @@ function openQDetail(qi,yr){
     var mt=T.filter(function(t){return t.date&&t.date.startsWith(mk)&&getTradeRR(t)!==null;});
     return parseFloat(mt.reduce(function(a,t){return a+(getTradeRR(t)||0);},0).toFixed(2));
   });
-  mkDpChart('dp-q-ch2','bar',moIdx.map(function(i){return ML2[i];}),mV,mV.map(function(v){return v>=0?'rgba(46,204,138,.75)':'rgba(224,92,106,.75)';}));
+  mkDpChart('dp-q-ch2','bar',moIdx.map(function(i){return ML2[i];}),mV,mV.map(function(v){return v>=0?CHART_COLORS.pos:CHART_COLORS.neg;}));
   document.getElementById('dp-q-stats').innerHTML=commonStats(s);
   mkStreak('dp-q-streak',trades);
   // months breakdown
@@ -2521,7 +2625,7 @@ function openYDetail(yr){
   T.filter(function(t){return t.date&&t.date.startsWith(String(yr))&&getTradeRR(t)!==null;})
    .forEach(function(t){mR12[parseInt(t.date.substring(5,7))-1]+=(getTradeRR(t)||0);});
   mkDpChart('dp-y-ch2','bar',M3,mR12.map(function(v){return parseFloat(v.toFixed(2));}),
-    mR12.map(function(v){return v>=0?'rgba(46,204,138,.75)':'rgba(224,92,106,.75)';}));
+    mR12.map(function(v){return v>=0?CHART_COLORS.pos:CHART_COLORS.neg;}));
   // chart 6 — distribution RR
   var rrB={};
   s.wRR.forEach(function(t){var rr=getTradeRR(t)||0;var b=(Math.round(rr*2)/2).toFixed(1)+'R';rrB[b]=(rrB[b]||0)+1;});
@@ -2656,7 +2760,7 @@ function renderAnnual(){
   var annV=aD.map(function(d){return parseFloat(d.R.toFixed(2));}).reverse();
   ch5.data.labels=annL;
   ch5.data.datasets[0].data=annV;
-  ch5.data.datasets[0].backgroundColor=annV.map(function(v){return v>=0?'rgba(46,204,138,.7)':'rgba(224,92,106,.7)';});
+  ch5.data.datasets[0].backgroundColor=annV.map(function(v){return v>=0?CHART_COLORS.pos:CHART_COLORS.neg;});
   ch5.update();
 }
 
@@ -2808,6 +2912,35 @@ function clearAll(){
   XYR=new Date().getFullYear();
   renderXLS();
   toast('Données effacées. Prêt pour vos trades !', false, 'info');
+}
+
+function clearMonth(moKey, mo){
+  var M3=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  var label = M3[mo] + ' ' + moKey.split('-')[0];
+  if(!confirm('Effacer tous les trades de '+label+' ?')) return;
+  // Supprimer de Firebase
+  if(!isDemo() && CURRENT_USER && FIREBASE_OK && db){
+    setSyncStatus('syncing');
+    fsTradesRef().get().then(function(snap){
+      var batch = db.batch();
+      snap.forEach(function(d){
+        var data = d.data();
+        if(data.date && data.date.startsWith(moKey)) batch.delete(d.ref);
+      });
+      return batch.commit();
+    }).then(function(){
+      setSyncStatus('ok');
+      updateLeaderboardStats();
+    }).catch(function(e){
+      setSyncStatus('error');
+      toast('⚠ Erreur: '+e.message, true);
+    });
+  }
+  // Supprimer du tableau local
+  T = T.filter(function(t){ return t.moKey !== moKey; });
+  document.getElementById('hdr-tc').textContent = T.length;
+  renderXLS();
+  toast('Trades de '+label+' effacés.', false, 'info');
 }
 
 function resetData(){
@@ -3008,10 +3141,15 @@ function submitCoupon(){
     btn.classList.remove('loading'); btn.textContent='🎟 Activer le code';
     if(!doc.exists){ errEl.textContent='⚠ Code introuvable.'; errEl.classList.add('show'); return; }
     var data = doc.data();
-    // Code valide — multi-usage autorisé
-    var months  = data.duration || 1;
+    // 1 coupon = 1 utilisateur
+    if((data.useCount || 0) >= 1){ errEl.textContent='⚠ Ce code a déjà été utilisé.'; errEl.classList.add('show'); return; }
+    var dur     = data.duration || 1;
+    var dUnit   = data.durationUnit || 'months';
     var now     = Date.now();
-    var until   = now + months * 30 * 24 * 60 * 60 * 1000;
+    var until = dUnit === 'hours'   ? now + dur * 3600000
+           : dUnit === 'days'    ? now + dur * 86400000
+           : dUnit === 'weeks'   ? now + dur * 7 * 86400000
+           :                       now + dur * 30 * 86400000; // months
     var untilFmt = new Date(until).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric'});
     // Incrémenter le compteur d'utilisations + ajouter l'utilisateur à la liste
     var p1 = fsCouponsRef().doc(code).update({
@@ -3055,9 +3193,11 @@ function saveCoupon(){
   if(!FIREBASE_OK||!db){ toast('\u26a0 Firebase indisponible.',true); return; }
   var dur = parseInt(document.getElementById('coupon-duration').value)||3;
   var msgEl = document.getElementById('coupon-save-msg');
+  var unit = document.getElementById('coupon-unit') ? document.getElementById('coupon-unit').value : 'months'; // hours | days | weeks | months
   fsCouponsRef().doc(_currentCouponCode).set({
     code: _currentCouponCode,
     duration: dur,
+    durationUnit: unit,
     useCount: 0,
     usedBy: [],
     lastUsedAt: null,
@@ -3091,8 +3231,8 @@ function loadAdminCoupons(){
       html+='<div style="display:flex;flex-direction:column;gap:6px;background:#030803;border:1px solid rgba(201,168,76,.08);border-radius:6px;padding:9px 12px">';
       html+='<div style="display:flex;align-items:center;gap:10px">';
       html+='<span style="font-family:JetBrains Mono,monospace;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.14em;flex:1">'+c.code+'</span>';
-      html+='<span style="font-size:8px;color:var(--dim)">'+c.duration+'M · '+dt+'</span>';
-      html+='<span style="font-size:9px;color:'+countColor+';font-weight:700">'+useCount+' utilisation'+(useCount>1?'s':'')+'</span>';
+      html+='<span style="font-size:8px;color:var(--dim)">'+c.duration+(c.durationUnit==="hours"?"H":c.durationUnit==="days"?"J":c.durationUnit==="weeks"?"S":"M")+' · '+dt+'</span>';
+      html+='<span style="font-size:9px;color:'+countColor+';font-weight:700">'+(useCount >= 1 ? '🔒 Utilisé' : '✓ Disponible')+'</span>';
       html+='<button onclick="deleteCoupon(\''+c.code+'\')" style="background:transparent;border:1px solid rgba(255,0,0,.2);color:var(--red);font-family:JetBrains Mono,monospace;font-size:8px;padding:2px 7px;border-radius:3px;cursor:pointer">×</button>';
       html+='</div>';
       if(usedByList) html+='<div style="font-size:8px;color:var(--dim);padding-left:2px">👥 '+usedByList+'</div>';
@@ -3121,6 +3261,30 @@ function switchAdminTab(tab){
 
 // ── CONFIG GLOBALE (Firestore: smf_config/defaults) ──
 var GLOBAL_CFG = { trialDuration: 30, trialUnit: 'days' };
+var CHART_COLORS = { win:'#2ecc8a', loss:'#e05c6a', open:'#5b8af5', pos:'#2ecc8a', neg:'#e05c6a' };
+
+function previewChartColors(){
+  ['win','loss','open','pos','neg'].forEach(function(k){
+    var el=document.getElementById('clr-'+k); if(el) CHART_COLORS[k]=el.value;
+  });
+  // Preview bar
+  var bar=document.getElementById('clr-preview-bar');
+  if(bar) bar.style.background='linear-gradient(90deg,'+CHART_COLORS.win+','+CHART_COLORS.loss+','+CHART_COLORS.open+')';
+  applyChartColors();
+}
+function resetChartColors(){
+  CHART_COLORS={win:'#2ecc8a',loss:'#e05c6a',open:'#5b8af5',pos:'#2ecc8a',neg:'#e05c6a'};
+  ['win','loss','open','pos','neg'].forEach(function(k){
+    var el=document.getElementById('clr-'+k); if(el) el.value=CHART_COLORS[k];
+  });
+  var bar=document.getElementById('clr-preview-bar');
+  if(bar) bar.style.background='linear-gradient(90deg,#2ecc8a,#e05c6a,#5b8af5)';
+  applyChartColors();
+}
+function applyChartColors(){
+  // Met à jour les couleurs sauvegardées sur tous les charts actifs
+  if(ch3&&ch3.data){ ch3.data.datasets[0].backgroundColor=[CHART_COLORS.win,CHART_COLORS.loss,CHART_COLORS.open]; ch3.update(); }
+}
 
 function fsGlobalConfigRef(){ return db ? db.collection('smf_config').doc('defaults') : null; }
 
@@ -3129,12 +3293,16 @@ function loadGlobalConfig(){
   fsGlobalConfigRef().get().then(function(doc){
     if(doc.exists && doc.data()){
       GLOBAL_CFG = { trialDuration: doc.data().trialDuration || 30, trialUnit: doc.data().trialUnit || 'days' };
+      if(doc.data().chartColors){ CHART_COLORS=Object.assign(CHART_COLORS,doc.data().chartColors); applyChartColors(); }
     }
     // Mettre à jour l'UI si le panneau est ouvert
     var unitEl = document.getElementById('cfg-trial-unit');
     var qtyEl  = document.getElementById('cfg-trial-qty');
     if(unitEl) unitEl.value = GLOBAL_CFG.trialUnit;
     if(qtyEl)  qtyEl.value  = GLOBAL_CFG.trialDuration;
+    ['win','loss','open','pos','neg'].forEach(function(k){
+      var el=document.getElementById('clr-'+k); if(el) el.value=CHART_COLORS[k];
+    });
     onTrialUnitChange();
   }).catch(function(e){ console.warn('loadGlobalConfig error:', e); });
 }
@@ -3164,7 +3332,12 @@ function saveGlobalConfig(){
   var qty  = parseInt(document.getElementById('cfg-trial-qty').value) || 30;
   var okEl = document.getElementById('cfg-save-ok');
   if(!db){ toast('\u26a0 Firebase indisponible.',true); return; }
-  GLOBAL_CFG = { trialDuration: qty, trialUnit: unit };
+  // Récupérer les couleurs du formulaire
+  ['win','loss','open','pos','neg'].forEach(function(k){
+    var el=document.getElementById('clr-'+k); if(el) CHART_COLORS[k]=el.value;
+  });
+  GLOBAL_CFG = { trialDuration: qty, trialUnit: unit, chartColors: CHART_COLORS };
+  applyChartColors();
   fsGlobalConfigRef().set(GLOBAL_CFG).then(function(){
     okEl.textContent = '\u2713 Configuration enregistrée !';
     okEl.style.display = 'block';
@@ -3422,6 +3595,7 @@ function doRegister(){
     ? _cfgRef.get().then(function(doc){
         if(doc.exists && doc.data()){
           GLOBAL_CFG = { trialDuration: doc.data().trialDuration || 30, trialUnit: doc.data().trialUnit || 'days' };
+      if(doc.data().chartColors){ CHART_COLORS=Object.assign(CHART_COLORS,doc.data().chartColors); applyChartColors(); }
         }
       }).catch(function(e){ console.warn('config fetch:', e); })
     : Promise.resolve();
