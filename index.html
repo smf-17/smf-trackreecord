@@ -8,6 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -518,31 +519,183 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 
 
 
-/* ─── LOGIN SCREEN ─── */
+/* ─── LANDING PAGE ─── */
 #login-screen{
   position:fixed;inset:0;z-index:9999;
   background:#000;
-  display:flex;align-items:center;justify-content:center;
-  flex-direction:column;
+  overflow-y:auto;overflow-x:hidden;
 }
 #login-screen.hidden{display:none}
+
+/* Navbar landing */
+.lnd-nav{
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;padding:0 40px;height:60px;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,255,0,.08);
+  gap:0;
+}
+.lnd-nav::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,255,0,.3),transparent);opacity:.6}
+.lnd-logo{display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif;
+  font-size:13px;font-weight:800;color:var(--white);letter-spacing:.05em;text-decoration:none;
+  animation:neonFlicker 8s infinite}
+.lnd-logo-icon{width:28px;height:28px;border-radius:6px;
+  background:linear-gradient(135deg,var(--green),#00aa00);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:#000;font-weight:900;
+  box-shadow:0 0 12px var(--green),0 0 24px rgba(0,255,0,.3)}
+.lnd-logo b{color:var(--green);text-shadow:0 0 8px var(--green)}
+.lnd-nav-links{display:flex;align-items:center;gap:2px;margin-left:32px}
+.lnd-nav-link{background:none;border:none;color:var(--mid);
+  font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 12px;cursor:pointer;border-radius:4px;transition:all .2s;text-decoration:none}
+.lnd-nav-link:hover{color:var(--green);background:rgba(0,255,0,.05)}
+.lnd-nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.lnd-btn-login{
+  background:transparent;border:1px solid rgba(0,255,0,.3);
+  color:var(--green);font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:8px 18px;border-radius:5px;cursor:pointer;transition:all .2s}
+.lnd-btn-login:hover{background:rgba(0,255,0,.08);border-color:var(--green);
+  box-shadow:0 0 12px rgba(0,255,0,.2)}
+.lnd-btn-register{
+  background:linear-gradient(135deg,var(--green),#00cc00);
+  border:none;color:#000;font-family:'JetBrains Mono',monospace;
+  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:8px 20px;border-radius:5px;cursor:pointer;transition:all .2s;
+  box-shadow:0 0 14px rgba(0,255,0,.35)}
+.lnd-btn-register:hover{box-shadow:0 0 28px rgba(0,255,0,.6);transform:translateY(-1px)}
+
+/* Hero */
+.lnd-hero{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:calc(100vh - 60px);padding:60px 24px;text-align:center;position:relative;
+}
+.lnd-hero::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,255,0,.04) 0%,transparent 70%);
+}
+.lnd-hero-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(0,255,0,.06);border:1px solid rgba(0,255,0,.2);
+  border-radius:20px;padding:5px 14px;margin-bottom:28px;
+  font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--green);text-shadow:0 0 6px rgba(0,255,0,.4);
+  animation:slideUp .6s ease-out .1s both}
+.lnd-hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--green);box-shadow:0 0 6px var(--green),0 0 12px rgba(0,255,0,.5);
+  animation:bk 1.5s infinite}
+.lnd-hero-title{
+  font-family:'Syne',sans-serif;font-size:clamp(36px,6vw,72px);font-weight:800;
+  color:var(--white);line-height:1.05;margin-bottom:20px;
+  animation:slideUp .6s ease-out .2s both;letter-spacing:-.01em}
+.lnd-hero-title .hl{
+  color:var(--green);text-shadow:0 0 20px rgba(0,255,0,.5),0 0 40px rgba(0,255,0,.2);
+  animation:neonFlicker 5s infinite 2s}
+.lnd-hero-sub{
+  font-size:clamp(13px,1.8vw,17px);color:var(--mid);line-height:1.65;
+  max-width:560px;margin-bottom:40px;
+  animation:slideUp .6s ease-out .3s both;font-weight:400}
+.lnd-hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+  animation:slideUp .6s ease-out .4s both}
+.lnd-cta-primary{
+  background:linear-gradient(135deg,var(--green),#00cc00);
+  border:none;color:#000;font-family:'JetBrains Mono',monospace;
+  font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  padding:15px 36px;border-radius:7px;cursor:pointer;transition:all .22s;
+  box-shadow:0 0 24px rgba(0,255,0,.4),0 4px 20px rgba(0,255,0,.2)}
+.lnd-cta-primary:hover{box-shadow:0 0 40px rgba(0,255,0,.7),0 6px 30px rgba(0,255,0,.3);
+  transform:translateY(-2px)}
+.lnd-cta-secondary{
+  background:transparent;border:1px solid rgba(0,255,0,.25);color:var(--text);
+  font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase;padding:15px 36px;
+  border-radius:7px;cursor:pointer;transition:all .22s}
+.lnd-cta-secondary:hover{border-color:rgba(0,255,0,.5);color:var(--green);
+  background:rgba(0,255,0,.04);box-shadow:0 0 16px rgba(0,255,0,.1)}
+
+/* Stats band */
+.lnd-stats{
+  display:flex;justify-content:center;gap:0;flex-wrap:wrap;
+  border-top:1px solid rgba(0,255,0,.06);border-bottom:1px solid rgba(0,255,0,.06);
+  background:rgba(0,255,0,.02);animation:slideUp .6s ease-out .5s both}
+.lnd-stat{
+  flex:1;min-width:150px;max-width:220px;padding:28px 24px;text-align:center;
+  border-right:1px solid rgba(0,255,0,.06)}
+.lnd-stat:last-child{border-right:none}
+.lnd-stat-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;
+  color:var(--green);text-shadow:0 0 16px rgba(0,255,0,.4);margin-bottom:6px}
+.lnd-stat-lbl{font-size:8.5px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+
+/* Features */
+.lnd-section{padding:80px 40px;max-width:1100px;margin:0 auto}
+.lnd-section-tag{font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--green);font-weight:700;text-shadow:0 0 8px rgba(0,255,0,.3);
+  margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.lnd-section-tag::after{content:'';flex:1;height:1px;background:rgba(0,255,0,.12)}
+.lnd-section-title{font-family:'Syne',sans-serif;font-size:clamp(24px,3.5vw,38px);
+  font-weight:800;color:var(--white);margin-bottom:10px;letter-spacing:-.01em}
+.lnd-section-sub{font-size:14px;color:var(--mid);line-height:1.6;
+  max-width:500px;margin-bottom:48px}
+.lnd-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.lnd-feat{
+  background:linear-gradient(180deg,#030803,#010301);
+  border:1px solid rgba(0,255,0,.1);border-radius:10px;
+  padding:28px 26px;position:relative;overflow:hidden;
+  transition:border-color .25s,box-shadow .25s,transform .25s;cursor:default}
+.lnd-feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent);opacity:0;
+  transition:opacity .25s}
+.lnd-feat:hover{border-color:rgba(0,255,0,.35);transform:translateY(-4px);
+  box-shadow:0 8px 32px rgba(0,255,0,.08)}
+.lnd-feat:hover::before{opacity:.8}
+.lnd-feat-icon{font-size:26px;margin-bottom:16px}
+.lnd-feat-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;
+  color:var(--white);margin-bottom:8px}
+.lnd-feat-desc{font-size:12px;color:var(--mid);line-height:1.65}
+
+/* Footer landing */
+.lnd-footer{
+  border-top:1px solid rgba(0,255,0,.07);
+  padding:28px 40px;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:12px}
+.lnd-footer-txt{font-size:8.5px;color:var(--dim);letter-spacing:.07em}
+.lnd-footer-txt b{color:var(--mid)}
+
+/* ─── AUTH MODAL ─── */
+#auth-modal{
+  position:fixed;inset:0;z-index:10000;
+  background:rgba(0,0,0,.88);backdrop-filter:blur(8px);
+  display:none;align-items:center;justify-content:center;
+}
+#auth-modal.show{display:flex}
 .login-box{
   background:linear-gradient(180deg,#030803 0%,#010301 100%);
   border:1px solid rgba(0,255,0,.2);
   border-radius:10px;
-  padding:40px 44px;
-  width:360px;
+  padding:36px 40px;
+  width:370px;
   position:relative;
   box-shadow:0 0 60px rgba(0,255,0,.07),0 0 120px rgba(0,0,0,.8);
-  animation:flashIn .4s ease-out;
+  animation:flashIn .35s ease-out;
 }
 .login-box::before{
   content:'';position:absolute;top:0;left:0;right:0;height:2px;
   background:linear-gradient(90deg,transparent,var(--green),transparent);
   border-radius:10px 10px 0 0;
 }
+/* Close modal btn */
+.auth-modal-close{
+  position:absolute;top:14px;right:14px;background:transparent;
+  border:1px solid rgba(0,255,0,.15);color:var(--mid);
+  width:26px;height:26px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:12px;
+  transition:all .15s;line-height:1}
+.auth-modal-close:hover{border-color:var(--red);color:var(--red);box-shadow:0 0 8px rgba(255,0,0,.2)}
 .login-logo{
-  text-align:center;margin-bottom:32px;
+  text-align:center;margin-bottom:28px;
 }
 .login-logo-icon{
   width:44px;height:44px;border-radius:10px;
@@ -681,8 +834,112 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
 <body>
 
 <!-- ═══ LOGIN SCREEN ═══ -->
+<!-- ═══ LANDING PAGE ═══ -->
 <div id="login-screen">
+
+  <!-- NAVBAR -->
+  <nav class="lnd-nav">
+    <div class="lnd-logo">
+      <div class="lnd-logo-icon">S</div>
+      SMF <b>TRADE</b> RECORDER
+    </div>
+    <div class="lnd-nav-links">
+      <a class="lnd-nav-link" href="#features">Fonctionnalités</a>
+      <a class="lnd-nav-link" href="#stats">Statistiques</a>
+    </div>
+    <div class="lnd-nav-right">
+      <button class="lnd-btn-login" onclick="openAuthModal('login')">⚡ Connexion</button>
+      <button class="lnd-btn-register" onclick="openAuthModal('register')">✦ S'inscrire</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="lnd-hero">
+    <div class="lnd-hero-badge">◈ Plateforme de Trading Professionnelle</div>
+    <h1 class="lnd-hero-title">
+      Tracke tes trades.<br>
+      <span class="hl">Domine le marché.</span>
+    </h1>
+    <p class="lnd-hero-sub">
+      Journal de trading avancé pour traders FX sérieux. Analyse tes performances, visualise ta progression et rivalise avec la communauté SMF en temps réel.
+    </p>
+    <div class="lnd-hero-ctas">
+      <button class="lnd-cta-primary" onclick="openAuthModal('register')">✦ Créer un compte gratuit</button>
+      <button class="lnd-cta-secondary" onclick="openAuthModal('login')">⚡ Se connecter</button>
+    </div>
+  </section>
+
+  <!-- STATS BAND -->
+  <div class="lnd-stats" id="stats">
+    <div class="lnd-stat">
+      <div class="lnd-stat-val">+R</div>
+      <div class="lnd-stat-lbl">Performance trackée</div>
+    </div>
+    <div class="lnd-stat">
+      <div class="lnd-stat-val">360°</div>
+      <div class="lnd-stat-lbl">Analyse complète</div>
+    </div>
+    <div class="lnd-stat">
+      <div class="lnd-stat-val">Live</div>
+      <div class="lnd-stat-lbl">Classement temps réel</div>
+    </div>
+    <div class="lnd-stat">
+      <div class="lnd-stat-val">Cloud</div>
+      <div class="lnd-stat-lbl">Sync Firebase sécurisé</div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <div class="lnd-section" id="features">
+    <div class="lnd-section-tag">◈ Fonctionnalités</div>
+    <h2 class="lnd-section-title">Tout ce dont un trader a besoin</h2>
+    <p class="lnd-section-sub">De la saisie rapide à l'analyse poussée, SMF Trade Recorder couvre chaque dimension de ta performance.</p>
+    <div class="lnd-features">
+      <div class="lnd-feat">
+        <div class="lnd-feat-icon">⊞</div>
+        <div class="lnd-feat-title">Journal de Trades</div>
+        <div class="lnd-feat-desc">Saisie rapide en ligne, paires FX, direction Long/Short, statut Win/Loss/Open, notes et montants. Organisé par mois automatiquement.</div>
+      </div>
+      <div class="lnd-feat">
+        <div class="lnd-feat-icon">◈</div>
+        <div class="lnd-feat-title">Dashboard Analytique</div>
+        <div class="lnd-feat-desc">KPIs en temps réel : Win Rate, Total R, Avg R:R, Max Drawdown. Graphiques de performance mensuelle, distribution R:R et ratio Win/Loss.</div>
+      </div>
+      <div class="lnd-feat">
+        <div class="lnd-feat-icon">🏆</div>
+        <div class="lnd-feat-title">Classement Global</div>
+        <div class="lnd-feat-desc">Rivalise avec toute la communauté SMF. Podium top 3, streaks de victoires, meilleur mois. Mis à jour à chaque trade sauvegardé.</div>
+      </div>
+      <div class="lnd-feat">
+        <div class="lnd-feat-icon">◧</div>
+        <div class="lnd-feat-title">Analyse Temporelle</div>
+        <div class="lnd-feat-desc">Vues mensuelle, trimestrielle et annuelle détaillées. Identifie tes meilleures périodes et ajuste ta stratégie sur le long terme.</div>
+      </div>
+      <div class="lnd-feat">
+        <div class="lnd-feat-icon">↓</div>
+        <div class="lnd-feat-title">Export & Backup</div>
+        <div class="lnd-feat-desc">Export Excel (XLSX) et JSON pour sauvegarder tes données. Import pour restaurer ou migrer ton historique complet.</div>
+      </div>
+      <div class="lnd-feat">
+        <div class="lnd-feat-icon">🔒</div>
+        <div class="lnd-feat-title">Accès Privé & Sécurisé</div>
+        <div class="lnd-feat-desc">Authentification Firebase, données chiffrées. Accès par invitation uniquement — période d'essai de 30 jours puis code d'activation.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="lnd-footer">
+    <div class="lnd-footer-txt">© 2025 <b>SMF Research</b> · Tous droits réservés · Accès Privé</div>
+    <div class="lnd-footer-txt">v3.8 · Contactez <b>KGB</b> pour un accès</div>
+  </footer>
+
+</div>
+
+<!-- ═══ AUTH MODAL ═══ -->
+<div id="auth-modal">
   <div class="login-box">
+    <button class="auth-modal-close" onclick="closeAuthModal()" title="Fermer">✕</button>
     <div class="login-logo">
       <div class="login-logo-icon">S</div>
       <div class="login-title">SMF <b>TRADE</b> RECORDER</div>
@@ -698,8 +955,8 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <!-- PANEL CONNEXION -->
     <div class="login-panel active" id="panel-login">
       <div class="login-field">
-        <label class="login-label">Identifiant</label>
-        <input class="login-input" id="l-user" type="text" placeholder="Votre pseudo" autocomplete="off"
+        <label class="login-label">Pseudo ou adresse e-mail</label>
+        <input class="login-input" id="l-user" type="text" placeholder="Pseudo ou adresse e-mail" autocomplete="off"
           onkeydown="if(event.key==='Enter')document.getElementById('l-pass').focus()"/>
       </div>
       <div class="login-field">
@@ -709,6 +966,37 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       </div>
       <button class="login-btn ripple-container" id="btn-login" onclick="doLogin()">⚡ Connexion</button>
       <div class="login-err" id="login-err">⚠ Identifiants incorrects</div>
+      <div style="text-align:center;margin-top:14px">
+        <button onclick="switchLoginTab('forgot')" style="background:none;border:none;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.05em;cursor:pointer;text-decoration:underline;text-underline-offset:3px;transition:color .15s" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--dim)'">🔑 Mot de passe oublié ?</button>
+      </div>
+    </div>
+
+    <!-- PANEL MOT DE PASSE OUBLIÉ -->
+    <div class="login-panel" id="panel-forgot">
+      <div style="text-align:center;padding:6px 0 18px">
+        <div style="font-size:32px;margin-bottom:10px">🔑</div>
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--white);margin-bottom:6px">Réinitialiser le mot de passe</div>
+        <div style="font-size:8.5px;color:var(--dim);line-height:1.7;margin-bottom:20px">Entrez l'adresse e-mail associée à votre compte.<br>Vous recevrez un lien pour créer un nouveau mot de passe.</div>
+      </div>
+      <div class="login-field">
+        <label class="login-label">Adresse e-mail</label>
+        <input class="login-input" id="forgot-email" type="email" placeholder="exemple@email.com" autocomplete="off"
+          onkeydown="if(event.key==='Enter')doForgotPassword()"/>
+      </div>
+      <button class="login-btn ripple-container" id="btn-forgot" onclick="doForgotPassword()">📨 Envoyer le lien</button>
+      <div class="login-err" id="forgot-err"></div>
+      <div class="login-ok"  id="forgot-ok"></div>
+      <!-- Avertissement spam -->
+      <div style="display:flex;align-items:flex-start;gap:9px;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.2);border-radius:6px;padding:10px 12px;margin-top:14px;text-align:left">
+        <span style="font-size:14px;flex-shrink:0">📂</span>
+        <div style="font-size:8px;color:rgba(201,168,76,.7);line-height:1.6">
+          Si vous ne recevez pas l'email, vérifiez votre dossier <b style="color:var(--gold)">Spam</b>.<br>
+          Expéditeur : <span style="font-family:'JetBrains Mono',monospace;font-size:7.5px;color:rgba(201,168,76,.85)">noreply@smf-track-reecord.firebaseapp.com</span>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:18px">
+        <button onclick="switchLoginTab('login')" style="background:none;border:none;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.05em;cursor:pointer;text-decoration:underline;text-underline-offset:3px;transition:color .15s" onmouseover="this.style.color='var(--green)'" onmouseout="this.style.color='var(--dim)'">← Retour à la connexion</button>
+      </div>
     </div>
 
     <!-- PANEL INSCRIPTION -->
@@ -726,6 +1014,16 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="login-field">
         <label class="login-label">Confirmer le mot de passe</label>
         <input class="login-input" id="r-pass2" type="password" placeholder="Répéter le mot de passe" autocomplete="off"
+          onkeydown="if(event.key==='Enter')document.getElementById('r-email').focus()"/>
+      </div>
+      <div class="login-field">
+        <label class="login-label">Adresse e-mail</label>
+        <input class="login-input" id="r-email" type="email" placeholder="exemple@email.com" autocomplete="off"
+          onkeydown="if(event.key==='Enter')document.getElementById('r-phone').focus()"/>
+      </div>
+      <div class="login-field">
+        <label class="login-label">Numéro de téléphone</label>
+        <input class="login-input" id="r-phone" type="tel" placeholder="Ex: +22890123456" autocomplete="off"
           onkeydown="if(event.key==='Enter')doRegister()"/>
       </div>
       <button class="login-btn ripple-container" id="btn-register" onclick="doRegister()">✦ Créer mon compte</button>
@@ -733,6 +1031,38 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
       <div class="login-ok"  id="register-ok"></div>
     </div>
 
+    <!-- PANEL VÉRIFICATION EMAIL -->
+    <div class="login-panel" id="panel-verify">
+      <div style="text-align:center;padding:10px 0 6px">
+        <div style="font-size:36px;margin-bottom:10px">📧</div>
+        <div style="font-size:13px;font-weight:700;color:var(--white);margin-bottom:8px;font-family:'Syne',sans-serif">Vérifiez votre e-mail</div>
+        <div style="font-size:8.5px;color:var(--dim);line-height:1.7;margin-bottom:14px" id="verify-hint">
+          Un lien de confirmation a été envoyé à votre adresse.<br>Cliquez sur ce lien pour activer votre compte.
+        </div>
+        <!-- ⚠ Avertissement spam -->
+        <div style="
+          display:flex;align-items:flex-start;gap:10px;
+          background:rgba(201,168,76,.07);
+          border:1px solid rgba(201,168,76,.25);
+          border-radius:6px;padding:11px 13px;
+          margin-bottom:16px;text-align:left;">
+          <span style="font-size:16px;flex-shrink:0;margin-top:1px">📂</span>
+          <div>
+            <div style="font-size:9px;font-weight:700;color:var(--gold);letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Email non reçu ?</div>
+            <div style="font-size:8.5px;color:rgba(201,168,76,.7);line-height:1.65;">
+              Vérifiez votre dossier <b style="color:var(--gold)">Spam / Courrier indésirable</b>.<br>
+              L'email provient de <span style="color:rgba(201,168,76,.9);font-family:'JetBrains Mono',monospace;font-size:8px">noreply@smf-track-reecord.firebaseapp.com</span><br>
+              Ajoutez cette adresse à vos contacts pour éviter ce problème à l'avenir.
+            </div>
+          </div>
+        </div>
+        <button class="login-btn ripple-container" onclick="checkEmailVerified()" style="margin-bottom:10px;font-size:10px">✓ J'ai confirmé mon e-mail</button>
+        <button class="br ripple-container" onclick="resendVerificationEmail()" id="btn-resend-verify" style="width:100%;margin-bottom:8px;font-size:9px;padding:9px 16px">⟳ Renvoyer le lien</button>
+        <button class="br ripple-container" onclick="switchLoginTab('login')" style="width:100%;font-size:9px;padding:9px 16px">← Retour à la connexion</button>
+      </div>
+      <div class="login-err" id="verify-err"></div>
+      <div class="login-ok"  id="verify-ok"></div>
+    </div>
     <div class="login-footer">SMF Research · Private Access · v3.8</div>
   </div>
 </div>
@@ -3543,6 +3873,8 @@ function fsUserRef(u) { return db ? db.collection('smf_users').doc(u) : null; }
 
 // ── FIREBASE ──
 var db = null;
+var auth = null;
+var _pendingAuthUser = null;
 var FIREBASE_OK = false;
 try {
   var firebaseConfig = {
@@ -3556,6 +3888,7 @@ try {
   };
   firebase.initializeApp(firebaseConfig);
   db      = firebase.firestore();
+  auth    = firebase.auth();
   FIREBASE_OK = true;
 } catch(e) {
   console.error('Firebase non disponible — toutes les sauvegardes sont désactivées.', e);
@@ -3634,13 +3967,26 @@ function switchLoginTab(tab) {
   document.getElementById('tab-register').classList.toggle('active', tab==='register');
   document.getElementById('panel-login').classList.toggle('active', tab==='login');
   document.getElementById('panel-register').classList.toggle('active', tab==='register');
-  // Reset erreurs
+  var pv = document.getElementById('panel-verify');
+  if(pv) pv.classList.toggle('active', tab==='verify');
+  var pf = document.getElementById('panel-forgot');
+  if(pf) pf.classList.toggle('active', tab==='forgot');
+  // Masquer les onglets pour verify et forgot
+  var hideTabs = (tab==='verify' || tab==='forgot');
+  document.getElementById('tab-login').style.display    = hideTabs ? 'none' : '';
+  document.getElementById('tab-register').style.display = hideTabs ? 'none' : '';
   document.getElementById('login-err').classList.remove('show');
   document.getElementById('register-err').classList.remove('show');
   document.getElementById('register-ok').classList.remove('show');
+  var ve = document.getElementById('verify-err'); if(ve) ve.classList.remove('show');
+  var vo = document.getElementById('verify-ok');  if(vo) vo.classList.remove('show');
+  var fe = document.getElementById('forgot-err'); if(fe) fe.classList.remove('show');
+  var fo = document.getElementById('forgot-ok');  if(fo) fo.classList.remove('show');
+  var fi = document.getElementById('forgot-email'); if(fi && tab==='forgot') fi.value='';
   setTimeout(function(){
     if(tab==='login') document.getElementById('l-user').focus();
-    else document.getElementById('r-user').focus();
+    else if(tab==='register') document.getElementById('r-user').focus();
+    else if(tab==='forgot') document.getElementById('forgot-email').focus();
   }, 80);
 }
 
@@ -3651,6 +3997,7 @@ function _startSession(user, role) {
   sessionStorage.setItem('smf_user', user);
   sessionStorage.setItem('smf_role', role);
   document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('auth-modal').classList.remove('show');
   document.getElementById('login-err').classList.remove('show');
   document.getElementById('hdr-d').textContent=
     new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
@@ -3660,6 +4007,53 @@ function _startSession(user, role) {
   applyUserUI();
   loadGlobalConfig();
   spawnNeonBurst(window.innerWidth/2, window.innerHeight/2);
+}
+
+function doForgotPassword(){
+  var email = (document.getElementById('forgot-email').value || '').trim();
+  var err   = document.getElementById('forgot-err');
+  var ok    = document.getElementById('forgot-ok');
+  var btn   = document.getElementById('btn-forgot');
+
+  err.classList.remove('show'); ok.classList.remove('show');
+
+  if(!email){
+    err.textContent='⚠ Veuillez entrer votre adresse e-mail.';
+    err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+    document.getElementById('forgot-email').focus();
+    return;
+  }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    err.textContent='⚠ Adresse e-mail invalide.';
+    err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+    return;
+  }
+  if(!FIREBASE_OK || !auth){
+    err.textContent='⚠ Service indisponible. Réessayez plus tard.';
+    err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+    return;
+  }
+
+  btn.classList.add('loading'); btn.textContent='⟳ Envoi en cours...';
+
+  auth.sendPasswordResetEmail(email).then(function(){
+    btn.classList.remove('loading'); btn.textContent='📨 Envoyer le lien';
+    ok.textContent='✓ Lien envoyé ! Vérifiez votre boîte mail (et vos spams).';
+    ok.classList.remove('show'); void ok.offsetWidth; ok.classList.add('show');
+    document.getElementById('forgot-email').value='';
+    // Retour auto vers login après 4s
+    setTimeout(function(){
+      switchLoginTab('login');
+    }, 4000);
+  }).catch(function(e){
+    btn.classList.remove('loading'); btn.textContent='📨 Envoyer le lien';
+    var msg = '⚠ Une erreur est survenue.';
+    if(e.code==='auth/user-not-found')    msg='⚠ Aucun compte associé à cette adresse.';
+    else if(e.code==='auth/invalid-email') msg='⚠ Adresse e-mail invalide.';
+    else if(e.code==='auth/too-many-requests') msg='⚠ Trop de tentatives. Réessayez dans quelques minutes.';
+    err.textContent=msg;
+    err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+  });
 }
 
 function doLogin(){
@@ -3681,52 +4075,109 @@ function doLogin(){
     glitchScreen && glitchScreen(); return;
   }
   btn.classList.add('loading'); btn.textContent='⟳ Vérification...';
-  sha256(p).then(function(hash){
-    return fsUserRef(u).get().then(function(doc){
+
+  var isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(u);
+
+  function _loginWithUsername(username) {
+    sha256(p).then(function(hash){
+      return fsUserRef(username).get().then(function(doc){
+        btn.classList.remove('loading'); btn.textContent='⚡ Connexion';
+        if(!doc.exists){
+          err.textContent='⚠ Identifiants incorrects.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+          document.getElementById('l-pass').value=''; document.getElementById('l-pass').focus();
+          glitchScreen && glitchScreen(); return;
+        }
+        var data = doc.data();
+        if(hash !== data.passHash){
+          err.textContent='\u26a0 Identifiants incorrects.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+          document.getElementById('l-pass').value=''; document.getElementById('l-pass').focus();
+          glitchScreen && glitchScreen();
+        } else {
+          // ── Vérification e-mail obligatoire ──
+          function _proceedAccess(data) {
+            var now2 = Date.now();
+            var trialEnds2   = (data.trialEnds !== undefined && data.trialEnds !== null) ? data.trialEnds : (data.createdAt + 30*24*60*60*1000);
+            var accessUntil2 = data.accessUntil || null;
+            var hasAccess2   = (accessUntil2 && accessUntil2 > now2) || (trialEnds2 > now2);
+            if(hasAccess2){
+              _startSession(data.user, data.role || 'user');
+            } else {
+              _pendingUser = data.user;
+              _pendingRole = data.role || 'user';
+              document.getElementById('login-screen').classList.add('hidden');
+              document.getElementById('auth-modal').classList.remove('show');
+              document.getElementById('coupon-screen').classList.add('show');
+              document.getElementById('coupon-code').value='';
+              document.getElementById('coupon-err').classList.remove('show');
+              document.getElementById('coupon-ok').classList.remove('show');
+              setTimeout(function(){ document.getElementById('coupon-code').focus(); }, 100);
+            }
+          }
+          // Si email enregistré mais pas encore vérifié → bloquer
+          if(auth && data.email && data.emailVerified === false) {
+            btn.classList.remove('loading'); btn.textContent='⚡ Connexion';
+            auth.signInWithEmailAndPassword(data.email, p).then(function(cred){
+              if(cred.user.emailVerified) {
+                fsUserRef(username).update({ emailVerified: true }).catch(function(){});
+                auth.signOut().catch(function(){});
+                _proceedAccess(data);
+              } else {
+                _pendingAuthUser = cred.user;
+                sessionStorage.setItem('smf_pending_user', username);
+                sessionStorage.setItem('smf_pending_role', data.role || 'user');
+                sessionStorage.setItem('smf_pending_trial', String(data.trialEnds || 0));
+                document.getElementById('verify-hint').innerHTML =
+                  'Votre e-mail <b style="color:var(--green)">' + data.email + '</b> n\'est pas encore confirmé.<br>' +
+                  '<span style="font-size:8px;color:var(--dim)">Vérifiez aussi vos spams.</span>';
+                switchLoginTab('verify');
+              }
+            }).catch(function(){
+              // Pas de compte Auth (ancien utilisateur) → connexion directe
+              _proceedAccess(data);
+            });
+            return;
+          }
+          _proceedAccess(data);
+        }
+      });
+    }).catch(function(e){
       btn.classList.remove('loading'); btn.textContent='⚡ Connexion';
-      if(!doc.exists){
-        err.textContent='⚠ Identifiants incorrects.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
-        document.getElementById('l-pass').value=''; document.getElementById('l-pass').focus();
-        glitchScreen && glitchScreen(); return;
-      }
-      var data = doc.data();
-      if(hash !== data.passHash){
-        err.textContent='\u26a0 Identifiants incorrects.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+      console.error(e);
+      err.textContent='⚠ Erreur de connexion. Réessayez.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+    });
+  }
+
+  // ── Branche : connexion par e-mail ──
+  if(isEmail){
+    if(!db){ btn.classList.remove('loading'); btn.textContent='⚡ Connexion'; return; }
+    db.collection('smf_users').where('email','==',u.toLowerCase()).limit(1).get().then(function(snap){
+      if(snap.empty){
+        btn.classList.remove('loading'); btn.textContent='⚡ Connexion';
+        err.textContent='⚠ Aucun compte associé à cet e-mail.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
         document.getElementById('l-pass').value=''; document.getElementById('l-pass').focus();
         glitchScreen && glitchScreen();
       } else {
-        // Vérifier l'accès (essai / coupon)
-        var now = Date.now();
-        var trialEnds   = (data.trialEnds !== undefined && data.trialEnds !== null) ? data.trialEnds : (data.createdAt + 30*24*60*60*1000);
-        var accessUntil = data.accessUntil || null;
-        var hasAccess   = (accessUntil && accessUntil > now) || (trialEnds > now);
-        if(hasAccess){
-          _startSession(data.user, data.role || 'user');
-        } else {
-          // Accès expiré → écran coupon
-          _pendingUser = data.user;
-          _pendingRole = data.role || 'user';
-          document.getElementById('login-screen').classList.add('hidden');
-          document.getElementById('coupon-screen').classList.add('show');
-          document.getElementById('coupon-code').value='';
-          document.getElementById('coupon-err').classList.remove('show');
-          document.getElementById('coupon-ok').classList.remove('show');
-          setTimeout(function(){ document.getElementById('coupon-code').focus(); }, 100);
-        }
+        var username = snap.docs[0].data().user;
+        _loginWithUsername(username);
       }
+    }).catch(function(e){
+      btn.classList.remove('loading'); btn.textContent='⚡ Connexion';
+      err.textContent='⚠ Erreur de connexion. Réessayez.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
     });
-  }).catch(function(e){
-    btn.classList.remove('loading'); btn.textContent='⚡ Connexion';
-    console.error(e);
-    err.textContent='⚠ Erreur de connexion. Réessayez.'; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
-  });
+  } else {
+    // Connexion par pseudo
+    _loginWithUsername(u);
+  }
 }
+
 
 // ── INSCRIPTION ──
 function doRegister(){
   var u  = document.getElementById('r-user').value.trim();
   var p  = document.getElementById('r-pass').value;
   var p2 = document.getElementById('r-pass2').value;
+  var email = document.getElementById('r-email').value.trim().toLowerCase();
+  var phone = document.getElementById('r-phone').value.trim();
   var err = document.getElementById('register-err');
   var ok  = document.getElementById('register-ok');
   var btn = document.getElementById('btn-register');
@@ -3740,6 +4191,14 @@ function doRegister(){
   if(ADMINS.some(function(a){ return a.user.toLowerCase()===u.toLowerCase(); })){ showErr('⚠ Ce pseudo est réservé.'); return; }
   if(!p || p.length < 4)       { showErr('⚠ Mot de passe trop court (min. 4 caractères).'); return; }
   if(p !== p2)                  { showErr('⚠ Les mots de passe ne correspondent pas.'); return; }
+  // Validation email
+  if(!email)                    { showErr('⚠ L\u2019adresse e-mail est obligatoire.'); return; }
+  var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  if(!emailRegex.test(email))   { showErr('⚠ Adresse e-mail invalide.'); return; }
+  // Validation téléphone
+  if(!phone)                    { showErr('⚠ Le numéro de téléphone est obligatoire.'); return; }
+  var phoneRegex = /^[+]?[\d\s\-().]{7,20}$/;
+  if(!phoneRegex.test(phone))   { showErr('⚠ Numéro de téléphone invalide.'); return; }
   if(!FIREBASE_OK || !db)       { showErr('⚠ Service indisponible. Réessayez plus tard.'); return; }
 
   btn.classList.add('loading'); btn.textContent='⟳ Création...';
@@ -3769,25 +4228,54 @@ function doRegister(){
       return sha256(p).then(function(hash){
         return fsUserRef(u).set({
           user: u, passHash: hash, role: 'user',
+          email: email, phone: phone,
           createdAt: now, trialEnds: computedTrialEnds, accessUntil: null
         });
       }).then(function(){
-        btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte';
-        ok.textContent='✓ Compte créé ! Connexion en cours...';
-        ok.classList.add('show');
-        document.getElementById('r-pass').value='';
-        document.getElementById('r-pass2').value='';
-        setTimeout(function(){
-          // computedTrialEnds accessible ici (closure du configPromise.then)
-          var hasAccess = computedTrialEnds > Date.now();
-          if(hasAccess){
-            _startSession(u, 'user');
-          } else {
-            _pendingUser = u; _pendingRole = 'user';
-            document.getElementById('coupon-expired-msg').textContent = '🔒 Un code d\'activation est requis pour accéder.';
-            document.getElementById('coupon-screen').classList.add('show');
-          }
-        }, 900);
+        // Créer compte Firebase Auth + envoyer email de vérification
+        if(auth) {
+          return auth.createUserWithEmailAndPassword(email, p).then(function(cred){
+            _pendingAuthUser = cred.user;
+            sessionStorage.setItem('smf_pending_user', u);
+            sessionStorage.setItem('smf_pending_role', 'user');
+            sessionStorage.setItem('smf_pending_trial', String(computedTrialEnds));
+            return cred.user.updateProfile({ displayName: u }).then(function(){
+              return cred.user.sendEmailVerification();
+            });
+          }).then(function(){
+            btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte';
+            document.getElementById('r-user').value='';
+            document.getElementById('r-pass').value='';
+            document.getElementById('r-pass2').value='';
+            document.getElementById('r-email').value='';
+            document.getElementById('r-phone').value='';
+            document.getElementById('verify-hint').innerHTML =
+              'Un lien de confirmation a été envoyé à :<br>' +
+              '<b style="color:var(--green)">' + email + '</b><br>' +
+              '<span style="font-size:8px;color:var(--dim)">Vérifiez aussi vos spams.</span>';
+            switchLoginTab('verify');
+          }).catch(function(authErr){
+            btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte';
+            var msg = authErr.code==='auth/email-already-in-use'
+              ? '⚠ Cet e-mail est déjà utilisé par un autre compte.'
+              : authErr.code==='auth/weak-password'
+              ? '⚠ Mot de passe trop faible (min. 6 caractères requis).'
+              : '⚠ Erreur: ' + authErr.message;
+            showErr(msg);
+          });
+        } else {
+          // Firebase Auth non dispo — connexion directe
+          btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte';
+          ok.textContent='✓ Compte créé ! Connexion en cours...';
+          ok.classList.add('show');
+          document.getElementById('r-pass').value='';
+          document.getElementById('r-pass2').value='';
+          setTimeout(function(){
+            if(computedTrialEnds > Date.now()){ _startSession(u, 'user'); }
+            else { _pendingUser=u; _pendingRole='user'; document.getElementById('coupon-screen').classList.add('show'); }
+          }, 900);
+          return;
+        }
       });
     }).catch(function(e){
       btn.classList.remove('loading'); btn.textContent='✦ Créer mon compte';
@@ -3795,6 +4283,66 @@ function doRegister(){
       showErr('⚠ Erreur lors de l’inscription. Réessayez.');
     });
   }); // fin configPromise
+}
+
+// ── VÉRIFICATION EMAIL ──
+function checkEmailVerified() {
+  var err = document.getElementById('verify-err');
+  var ok  = document.getElementById('verify-ok');
+  function showVErr(m){ err.textContent=m; err.classList.remove('show'); void err.offsetWidth; err.classList.add('show'); ok.classList.remove('show'); }
+
+  if(!_pendingAuthUser){
+    // Pas de user en attente → retour login
+    switchLoginTab('login'); return;
+  }
+  showVErr('');
+  _pendingAuthUser.reload().then(function(){
+    if(_pendingAuthUser.emailVerified){
+      var pu   = sessionStorage.getItem('smf_pending_user')  || _pendingAuthUser.displayName;
+      var pr   = sessionStorage.getItem('smf_pending_role')  || 'user';
+      var ptrial = parseInt(sessionStorage.getItem('smf_pending_trial') || '0', 10);
+      // Mettre à jour Firestore emailVerified
+      if(pu) fsUserRef(pu).update({ emailVerified: true }).catch(function(){});
+      auth.signOut().catch(function(){});
+      _pendingAuthUser = null;
+      sessionStorage.removeItem('smf_pending_user');
+      sessionStorage.removeItem('smf_pending_role');
+      sessionStorage.removeItem('smf_pending_trial');
+      var hasAccess = (ptrial > Date.now()) || false;
+      if(hasAccess){ _startSession(pu, pr); }
+      else {
+        _pendingUser = pu; _pendingRole = pr;
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('coupon-screen').classList.add('show');
+        document.getElementById('coupon-code').value='';
+        document.getElementById('coupon-err').classList.remove('show');
+        document.getElementById('coupon-ok').classList.remove('show');
+        setTimeout(function(){ document.getElementById('coupon-code').focus(); }, 100);
+      }
+    } else {
+      showVErr('⚠ E-mail pas encore confirmé. Cliquez sur le lien reçu par mail.');
+    }
+  }).catch(function(e){ showVErr('⚠ Erreur: ' + e.message); });
+}
+
+function resendVerificationEmail() {
+  var err = document.getElementById('verify-err');
+  var ok  = document.getElementById('verify-ok');
+  var btn = document.getElementById('btn-resend-verify');
+  if(!_pendingAuthUser){ switchLoginTab('login'); return; }
+  btn.disabled = true; btn.textContent = '⟳ Envoi...';
+  _pendingAuthUser.sendEmailVerification().then(function(){
+    ok.textContent = '✓ Email renvoyé ! Vérifiez votre boîte mail.';
+    ok.classList.remove('show'); void ok.offsetWidth; ok.classList.add('show');
+    err.classList.remove('show');
+    btn.textContent = '⟳ Renvoyer le lien';
+    // Anti-spam : désactiver 60 secondes
+    setTimeout(function(){ btn.disabled = false; }, 60000);
+  }).catch(function(e){
+    err.textContent = '⚠ ' + (e.code === 'auth/too-many-requests' ? 'Trop de tentatives. Réessayez dans quelques minutes.' : e.message);
+    err.classList.remove('show'); void err.offsetWidth; err.classList.add('show');
+    btn.disabled = false; btn.textContent = '⟳ Renvoyer le lien';
+  });
 }
 
 function doLogout(){
@@ -3809,8 +4357,10 @@ function doLogout(){
   document.getElementById('l-user').value='';
   document.getElementById('l-pass').value='';
   document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('auth-modal').classList.remove('show');
+  document.getElementById('login-screen').scrollTop = 0;
+  window.scrollTo(0,0);
   switchLoginTab('login');
-  setTimeout(function(){document.getElementById('l-user').focus();},100);
 }
 
 function isDemo()  { return CURRENT_ROLE==='demo';  }
@@ -4187,14 +4737,32 @@ function renderLeaderboard(){
   });
 }
 
+// ── AUTH MODAL ──
+function openAuthModal(tab){
+  document.getElementById('auth-modal').classList.add('show');
+  switchLoginTab(tab || 'login');
+  setTimeout(function(){
+    if(tab==='register') document.getElementById('r-user') && document.getElementById('r-user').focus();
+    else document.getElementById('l-user') && document.getElementById('l-user').focus();
+  },120);
+}
+function closeAuthModal(){
+  document.getElementById('auth-modal').classList.remove('show');
+}
+// Fermer modal en cliquant sur le fond
+document.addEventListener('click', function(e){
+  if(e.target && e.target.id === 'auth-modal') closeAuthModal();
+});
+
 // ── INIT ──
 window.onload=function(){
   // Auth gate
   if(!checkSession()){
-    setTimeout(function(){document.getElementById('l-user').focus();},100);
+    // Landing page visible — pas de focus automatique
     return;
   } else {
     document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('auth-modal').classList.remove('show');
   }
 
   document.getElementById('hdr-d').textContent=
