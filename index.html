@@ -1455,7 +1455,10 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
           </div>
         </div>
         <div id="clr-preview-bar" style="width:100%;height:8px;border-radius:4px;background:linear-gradient(90deg,#2ecc8a,#e05c6a,#5b8af5);transition:background .3s;margin-bottom:10px"></div>
-        <button onclick="resetChartColors()" style="width:100%;background:transparent;border:1px solid rgba(201,168,76,.2);color:rgba(201,168,76,.6);font-family:JetBrains Mono,monospace;font-size:8px;font-weight:600;padding:6px;border-radius:var(--radius);cursor:pointer;letter-spacing:.07em;text-transform:uppercase" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(201,168,76,.2)';this.style.color='rgba(201,168,76,.6)'">↺ Couleurs par défaut</button>
+        <div style="display:flex;gap:8px">
+          <button onclick="saveGlobalConfig()" style="flex:2;background:linear-gradient(135deg,var(--gold),#b8922a);color:#000;border:none;border-radius:var(--radius);font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:8px;cursor:pointer;box-shadow:0 0 10px rgba(201,168,76,.3)">💾 Sauvegarder les couleurs</button>
+          <button onclick="resetChartColors()" style="flex:1;background:transparent;border:1px solid rgba(201,168,76,.2);color:rgba(201,168,76,.6);font-family:JetBrains Mono,monospace;font-size:8px;font-weight:600;padding:6px;border-radius:var(--radius);cursor:pointer;letter-spacing:.07em;text-transform:uppercase" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='rgba(201,168,76,.2)';this.style.color='rgba(201,168,76,.6)'">↺ Défaut</button>
+        </div>
       </div>
 
       <!-- Réinitialisation globale -->
@@ -3771,16 +3774,14 @@ function applyChartColors(){
   if(ch3&&ch3.data){ ch3.data.datasets[0].backgroundColor=[CHART_COLORS.win,CHART_COLORS.loss,CHART_COLORS.open]; ch3.update(); }
 }
 
-function fsGlobalConfigRef(){ return db ? db.collection('smf_config').doc('defaults') : null; }
+function fsGlobalConfigRef(){ return db ? db.collection('smf_leaderboard').doc('app_config') : null; }
+
+var _globalConfigUnsubscribe = null;
 
 function loadGlobalConfig(){
   if(!db) return;
-  fsGlobalConfigRef().get().then(function(doc){
-    if(doc.exists && doc.data()){
-      GLOBAL_CFG = { trialDuration: doc.data().trialDuration || 30, trialUnit: doc.data().trialUnit || 'days' };
-      if(doc.data().chartColors){ CHART_COLORS=Object.assign(CHART_COLORS,doc.data().chartColors); applyChartColors(); }
-    }
-    // Mettre à jour l'UI si le panneau est ouvert
+  // Si déjà en écoute temps réel, juste mettre à jour l'UI admin
+  if(_globalConfigUnsubscribe){
     var unitEl = document.getElementById('cfg-trial-unit');
     var qtyEl  = document.getElementById('cfg-trial-qty');
     if(unitEl) unitEl.value = GLOBAL_CFG.trialUnit;
@@ -3789,7 +3790,24 @@ function loadGlobalConfig(){
       var el=document.getElementById('clr-'+k); if(el) el.value=CHART_COLORS[k];
     });
     onTrialUnitChange();
-  }).catch(function(e){ console.warn('loadGlobalConfig error:', e); });
+    return;
+  }
+  // Écoute temps réel : tous les utilisateurs reçoivent les changements instantanément
+  _globalConfigUnsubscribe = fsGlobalConfigRef().onSnapshot(function(doc){
+    if(doc.exists && doc.data()){
+      GLOBAL_CFG = { trialDuration: doc.data().trialDuration || 30, trialUnit: doc.data().trialUnit || 'days' };
+      if(doc.data().chartColors){ CHART_COLORS=Object.assign(CHART_COLORS,doc.data().chartColors); applyChartColors(); }
+    }
+    // Mettre à jour l'UI si le panneau admin est ouvert
+    var unitEl = document.getElementById('cfg-trial-unit');
+    var qtyEl  = document.getElementById('cfg-trial-qty');
+    if(unitEl) unitEl.value = GLOBAL_CFG.trialUnit;
+    if(qtyEl)  qtyEl.value  = GLOBAL_CFG.trialDuration;
+    ['win','loss','open','pos','neg'].forEach(function(k){
+      var el=document.getElementById('clr-'+k); if(el) el.value=CHART_COLORS[k];
+    });
+    if(document.getElementById('cfg-trial-unit')) onTrialUnitChange();
+  }, function(e){ console.warn('loadGlobalConfig error:', e); });
 }
 
 function onTrialUnitChange(){
@@ -3817,17 +3835,24 @@ function saveGlobalConfig(){
   var qty  = parseInt(document.getElementById('cfg-trial-qty').value) || 30;
   var okEl = document.getElementById('cfg-save-ok');
   if(!db){ toast('\u26a0 Firebase indisponible.',true); return; }
+  var ref = fsGlobalConfigRef();
+  if(!ref){ toast('\u26a0 Référence Firestore invalide.',true); return; }
   // Récupérer les couleurs du formulaire
   ['win','loss','open','pos','neg'].forEach(function(k){
     var el=document.getElementById('clr-'+k); if(el) CHART_COLORS[k]=el.value;
   });
   GLOBAL_CFG = { trialDuration: qty, trialUnit: unit, chartColors: CHART_COLORS };
   applyChartColors();
-  fsGlobalConfigRef().set(GLOBAL_CFG).then(function(){
-    okEl.textContent = '\u2713 Configuration enregistrée !';
-    okEl.style.display = 'block';
-    setTimeout(function(){ okEl.style.display='none'; }, 3000);
-  }).catch(function(e){ toast('\u26a0 Erreur: '+e.message, true); });
+  if(okEl){ okEl.textContent = '\u23f3 Sauvegarde...'; okEl.style.color='var(--gold)'; okEl.style.display='block'; }
+  ref.set(GLOBAL_CFG, { merge: true }).then(function(){
+    if(okEl){ okEl.textContent = '\u2713 Configuration enregistrée pour tous !'; okEl.style.color='var(--green)'; okEl.style.display='block'; }
+    toast('\u2713 Couleurs & config sauvegardées !', false, 'info');
+    setTimeout(function(){ if(okEl) okEl.style.display='none'; }, 3500);
+  }).catch(function(e){
+    console.error('saveGlobalConfig error:', e.code, e.message);
+    if(okEl){ okEl.textContent = '\u26a0 Erreur: '+e.message; okEl.style.color='var(--red)'; okEl.style.display='block'; }
+    toast('\u26a0 Erreur sauvegarde: ' + e.message, true);
+  });
 }
 
 function calcTrialEnds(){
