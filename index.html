@@ -457,6 +457,8 @@ body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opac
 .cfg-locked-lbl{font-size:7px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;width:52px;flex-shrink:0}
 .cfg-locked-val{font-size:11px;font-weight:700;color:var(--green);text-shadow:0 0 5px rgba(0,255,0,.3)}
 .cfg-lock-icon{font-size:9px;margin-left:auto;color:rgba(201,168,76,.6)}
+.btn-unlock-cfg{background:transparent;border:1px solid rgba(201,168,76,.3);color:rgba(201,168,76,.8);font-family:'JetBrains Mono',monospace;font-size:8px;font-weight:700;padding:2px 7px;border-radius:3px;cursor:pointer;transition:all .15s;white-space:nowrap;margin-left:auto}
+.btn-unlock-cfg:hover{background:rgba(201,168,76,.1);border-color:var(--gold);color:var(--gold2);box-shadow:0 0 8px rgba(201,168,76,.3)}
 .cfg-prereq-needed{text-align:center;padding:8px 4px;font-size:8px;color:rgba(201,168,76,.6);
   letter-spacing:.05em;border:1px dashed rgba(201,168,76,.2);border-radius:4px;cursor:pointer;
   transition:all .15s}
@@ -934,6 +936,35 @@ var o=[];var l=Array.isArray(e);for(f=n.s.c;f<=n.e.c;++f)s[f]=ya(f);for(var c=n.
     <div class="lnd-footer-txt">v3.8 · Contactez <b>KGB</b> pour un accès</div>
   </footer>
 
+</div>
+
+<!-- ═══ MODAL CONFIRMATION MOT DE PASSE (actions protégées) ═══ -->
+<div id="pwd-confirm-ovl" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);align-items:center;justify-content:center">
+  <div style="background:linear-gradient(180deg,#030803 0%,#000 100%);border:1px solid rgba(255,0,0,.35);border-radius:10px;padding:28px 32px;width:340px;max-width:94vw;box-shadow:0 0 40px rgba(255,0,0,.15),0 0 80px rgba(0,0,0,.8);position:relative">
+    <!-- Ligne rouge haut -->
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent);border-radius:10px 10px 0 0"></div>
+    <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--white);margin-bottom:6px;display:flex;align-items:center;gap:10px">
+      <span id="pwd-confirm-icon" style="font-size:18px">🔒</span>
+      <span id="pwd-confirm-title">Action protégée</span>
+    </div>
+    <div id="pwd-confirm-label" style="font-size:10px;color:rgba(255,80,80,.7);margin-bottom:18px;letter-spacing:.03em"></div>
+    <div style="font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:6px;font-weight:700">Confirme avec ton mot de passe</div>
+    <input id="pwd-confirm-input" type="password" placeholder="Mot de passe..." autocomplete="off"
+      style="width:100%;background:#030803;border:1px solid rgba(255,0,0,.25);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;padding:10px 12px;outline:none;transition:border-color .15s,box-shadow .15s;margin-bottom:10px"
+      onfocus="this.style.borderColor='var(--red)';this.style.boxShadow='0 0 10px rgba(255,0,0,.25)'"
+      onblur="this.style.borderColor='rgba(255,0,0,.25)';this.style.boxShadow='none'"
+      onkeydown="if(event.key==='Enter')doPwdConfirm()"/>
+    <div id="pwd-confirm-err" style="font-size:10px;color:var(--red);margin-bottom:10px;min-height:16px;display:none">⚠ Mot de passe incorrect.</div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button onclick="closePwdConfirm()" style="flex:1;background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--mid);font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:9px;border-radius:5px;cursor:pointer;transition:all .15s"
+        onmouseover="this.style.borderColor='rgba(255,255,255,.3)';this.style.color='var(--white)'"
+        onmouseout="this.style.borderColor='rgba(255,255,255,.1)';this.style.color='var(--mid)'">Annuler</button>
+      <button onclick="doPwdConfirm()" id="pwd-confirm-btn"
+        style="flex:1;background:linear-gradient(135deg,#cc2222,#881111);color:#fff;border:none;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:9px;border-radius:5px;cursor:pointer;transition:all .15s;box-shadow:0 0 12px rgba(255,0,0,.3);letter-spacing:.04em;text-transform:uppercase"
+        onmouseover="this.style.boxShadow='0 0 24px rgba(255,0,0,.5)'"
+        onmouseout="this.style.boxShadow='0 0 12px rgba(255,0,0,.3)'">Confirmer</button>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ AUTH MODAL ═══ -->
@@ -1677,8 +1708,21 @@ var QMOS=[[0,1,2],[3,4,5],[6,7,8],[9,10,11]];
 var DAYS=['Lun','Mar','Mer','Jeu','Ven'];
 var PAGES = ['input','dashboard','history','monthly','quarterly','annual','leaderboard'];
 
+// ── HASH ROUTING ──
+var HASH_MAP = {
+  'input':       '/trades',
+  'dashboard':   '/dashboard',
+  'history':     '/historique',
+  'monthly':     '/mensuel',
+  'quarterly':   '/trimestriel',
+  'annual':      '/annuel',
+  'leaderboard': '/classement'
+};
+var HASH_REVERSE = {};
+(function(){ for(var k in HASH_MAP) HASH_REVERSE[HASH_MAP[k]] = k; })();
+
 // ── PAGE SWITCH ──
-function sw(id) {
+function sw(id, _skipHash) {
   // En mode spectateur, bloquer l'accès à Input
   if(VIEW_USER && id === 'input') return;
   PAGES.forEach(function(p) {
@@ -1698,7 +1742,18 @@ function sw(id) {
   if (id === 'annual')       { initCharts(); renderAnnual(); }
   if (id === 'input')        renderXLS();
   if (id === 'leaderboard')  renderLeaderboard();
+  // Mettre à jour l'URL sans rechargement de page
+  if (!_skipHash && HASH_MAP[id]) {
+    history.pushState({ page: id }, '', '#' + HASH_MAP[id]);
+  }
 }
+
+// Navigation arrière/avant du navigateur
+window.addEventListener('popstate', function(e) {
+  var hash = window.location.hash.replace('#', '') || '/trades';
+  var id = HASH_REVERSE[hash] || 'input';
+  if(checkSession()) sw(id, true);
+});
 
 // ── CHARTS INIT ──
 function initCharts() {
@@ -1946,16 +2001,34 @@ function saveTrade() {
 
 // ── DELETE ──
 function del(id) {
-  if (!confirm('Supprimer ce trade ?')) return;
-  fsDeleteTrade(id);
-  T = T.filter(function(t){ return t.id !== id; });
-  save(); renderXLS(); toast('Supprimé.');
+  var t = T.find(function(x){ return x.id === id; });
+  var info = t ? (t.pair||'') + (t.date ? ' · ' + t.date : '') : '';
+  openPwdModal({
+    icon: '✕', color: 'red', title: 'Supprimer le trade',
+    label: (info ? info + ' — ' : '') + 'Cette action est irréversible.',
+    btnText: '✕ Supprimer',
+    onSuccess: function() {
+      fsDeleteTrade(id);
+      T = T.filter(function(x){ return x.id !== id; });
+      save(); renderXLS();
+      toast('✕ Trade ' + (info || id) + ' supprimé.');
+    }
+  });
 }
 function delH(id) {
-  if (!confirm('Supprimer ce trade ?')) return;
-  fsDeleteTrade(id);
-  T = T.filter(function(t){ return t.id !== id; });
-  save(); renderHist(); renderXLS(); toast('Supprimé.');
+  var t = T.find(function(x){ return x.id === id; });
+  var info = t ? (t.pair||'') + (t.date ? ' · ' + t.date : '') : '';
+  openPwdModal({
+    icon: '✕', color: 'red', title: 'Supprimer le trade',
+    label: (info ? info + ' — ' : '') + 'Cette action est irréversible.',
+    btnText: '✕ Supprimer',
+    onSuccess: function() {
+      fsDeleteTrade(id);
+      T = T.filter(function(x){ return x.id !== id; });
+      save(); renderHist(); renderXLS();
+      toast('✕ Trade ' + (info || id) + ' supprimé.');
+    }
+  });
 }
 
 // ── SAVE ── (mise à jour compteur — le vrai save est fait par fsSaveTrade/saveCFG)
@@ -2111,17 +2184,39 @@ function renderXLS() {
     // ── Config balance + risque (stop propagation) ──
     html += '<div class="inp-mc-cfg" onclick="event.stopPropagation()">';
     if (hasTrades) {
-      // VERROUILLÉ : affichage lecture seule après le 1er trade
-      html += '<div class="cfg-locked-row">';
-      html += '<span class="cfg-locked-lbl">Balance</span>';
-      html += '<span class="cfg-locked-val">'+(cfg.bal ? cfg.bal.toLocaleString('fr-FR')+'$' : '<span style="color:var(--dim)">—</span>')+'</span>';
-      html += '<span class="cfg-lock-icon">🔒</span>';
-      html += '</div>';
-      html += '<div class="cfg-locked-row">';
-      html += '<span class="cfg-locked-lbl">Risque %</span>';
-      html += '<span class="cfg-locked-val">'+(cfg.risk ? cfg.risk+'%' : '<span style="color:var(--dim)">—</span>')+'</span>';
-      html += '<span class="cfg-lock-icon">🔒</span>';
-      html += '</div>';
+      // VERROUILLÉ par défaut — déverrouillable via mot de passe
+      if (CFG_UNLOCKED[moKey]) {
+        // Mode édition déverrouillé ✏ — badge avec countdown
+        html += '<div id="cfg-unlock-badge-'+mo+'" style="font-size:7px;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px;opacity:.8;display:flex;align-items:center;justify-content:space-between">';
+        html += '<span>🔓 Édition — re-verrouillage dans 5s</span>';
+        html += '<button onclick="event.stopPropagation();relockCfg(\''+moKey+'\','+mo+')" style="background:transparent;border:1px solid rgba(201,168,76,.3);color:rgba(201,168,76,.7);font-family:JetBrains Mono,monospace;font-size:7px;padding:1px 5px;border-radius:3px;cursor:pointer">🔒</button>';
+        html += '</div>';
+        html += '<div class="inp-mc-cfg-row">';
+        html += '<span class="inp-mc-cfg-label">Balance</span>';
+        html += '<input class="inp-mc-cfg-input" type="number" min="0" placeholder="Ex: 10 000"'+
+                ' value="'+(cfg.bal||'')+'"'+
+                ' oninput="onCfgChange(\''+moKey+'\',\'bal\',this.value,'+mo+')"'+
+                '/>';
+        html += '</div>';
+        html += '<div class="inp-mc-cfg-row">';
+        html += '<span class="inp-mc-cfg-label">Risque %</span>';
+        html += '<input class="inp-mc-cfg-input" type="number" min="0" max="100" step="0.1" placeholder="Ex: 1"'+
+                ' value="'+(cfg.risk||'')+'"'+
+                ' oninput="onCfgChange(\''+moKey+'\',\'risk\',this.value,'+mo+')"'+
+                '/>';
+        html += '</div>';
+      } else {
+        // Mode lecture seule 🔒 + bouton déverrouiller
+        html += '<div class="cfg-locked-row">';
+        html += '<span class="cfg-locked-lbl">Balance</span>';
+        html += '<span class="cfg-locked-val">'+(cfg.bal ? cfg.bal.toLocaleString('fr-FR')+'$' : '<span style="color:var(--dim)">—</span>')+'</span>';
+        html += '<button class="btn-unlock-cfg" onclick="event.stopPropagation();unlockCfg(\''+moKey+'\','+mo+')">🔓 Modifier</button>';
+        html += '</div>';
+        html += '<div class="cfg-locked-row">';
+        html += '<span class="cfg-locked-lbl">Risque %</span>';
+        html += '<span class="cfg-locked-val">'+(cfg.risk ? cfg.risk+'%' : '<span style="color:var(--dim)">—</span>')+'</span>';
+        html += '</div>';
+      }
     } else if (cfg.bal && cfg.risk) {
       // Prérequis définis, pas encore de trade → champs éditables
       html += '<div class="inp-mc-cfg-row">';
@@ -2179,6 +2274,30 @@ function onCfgChange(moKey, field, val, mo) {
   var v = parseFloat(val);
   CFG[moKey][field] = (val !== '' && !isNaN(v) && v > 0) ? v : null;
   saveCFG();
+
+  // Re-verrouillage avec compte à rebours visuel (5s)
+  clearTimeout(onCfgChange._relock);
+  clearInterval(onCfgChange._countdown);
+  var remaining = 5;
+  function _updateBadge() {
+    var badge = document.getElementById('cfg-unlock-badge-' + mo);
+    if (badge) badge.textContent = '🔓 Édition — re-verrouillage dans ' + remaining + 's';
+  }
+  _updateBadge();
+  onCfgChange._countdown = setInterval(function(){
+    remaining--;
+    _updateBadge();
+    if (remaining <= 0) clearInterval(onCfgChange._countdown);
+  }, 1000);
+  onCfgChange._relock = setTimeout(function(){
+    clearInterval(onCfgChange._countdown);
+    if(CFG_UNLOCKED[moKey]){
+      delete CFG_UNLOCKED[moKey];
+      renderXLS();
+      toast('🔒 Paramètres de ' + moKey + ' re-verrouillés.', false, 'info');
+    }
+  }, 5000);
+
   // Recalculer et mettre à jour uniquement la carte concernée sans rerendre tout
   updateCardResults(moKey, mo);
   // Mettre à jour le drawer si ouvert sur ce mois
@@ -2480,13 +2599,21 @@ function closeInpDrawer() {
 }
 
 function delFromDrawer(id) {
-  if (!confirm('Supprimer ce trade ?')) return;
-  fsDeleteTrade(id);
-  T = T.filter(function(t){ return t.id !== id; });
-  save();
-  if (INP_DRW_MO !== null) openInpDrawer(INP_DRW_MO);
-  renderXLS();
-  toast('Supprimé.');
+  var t = T.find(function(x){ return x.id === id; });
+  var info = t ? (t.pair||'') + (t.date ? ' · ' + t.date : '') : '';
+  openPwdModal({
+    icon: '✕', color: 'red', title: 'Supprimer le trade',
+    label: (info ? info + ' — ' : '') + 'Cette action est irréversible.',
+    btnText: '✕ Supprimer',
+    onSuccess: function() {
+      fsDeleteTrade(id);
+      T = T.filter(function(x){ return x.id !== id; });
+      save();
+      if (INP_DRW_MO !== null) openInpDrawer(INP_DRW_MO);
+      renderXLS();
+      toast('✕ Trade ' + (info || id) + ' supprimé.');
+    }
+  });
 }
 // ── SOUMISSION LIGNE INLINE ──
 function calcInlinePv() {
@@ -3344,45 +3471,52 @@ function importJSON() {
           });
         });
         if(!newTrades.length){ toast('\u26a0 Aucun trade trouvé dans le fichier.', true); return; }
-        if(!confirm('Importer ' + newTrades.length + ' trades depuis Excel ?\nCela remplacera toutes vos données actuelles.')) return;
-        if(!FIREBASE_OK || !db){ toast('\u26a0 Firebase indisponible — import impossible.', true); return; }
-        setSyncStatus('syncing');
-        fsTradesRef().get().then(function(snap){
-          var batch = db.batch();
-          snap.forEach(function(d){ batch.delete(d.ref); });
-          return batch.commit();
-        }).then(function(){
-          var batches = [];
-          for(var i=0; i<newTrades.length; i+=400){
-            var batch = db.batch();
-            newTrades.slice(i,i+400).forEach(function(t){ batch.set(fsTradesRef().doc(String(t.id)), t); });
-            batches.push(batch.commit());
-          }
-          var p2 = Object.keys(newCFG).length ? fsCfgRef().set({cfg: newCFG}) : Promise.resolve();
-          return Promise.all(batches.concat([p2]));
-        }).then(function(){
-          T = newTrades.slice().sort(function(a,b){ return b.id - a.id; });
-          if(Object.keys(newCFG).length) CFG = newCFG;
-          document.getElementById('hdr-tc').textContent = T.length;
-          XYR = new Date().getFullYear();
-          renderXLS();
-          setSyncStatus('ok');
-          toast('\u2713 Import Excel réussi — ' + T.length + ' trades chargés !');
-          // Recalcul immédiat de tous les graphiques en arrière-plan
-          chartsReady = false;
-          setTimeout(function(){
-            try { initCharts(); } catch(e){}
-            try { renderDash(); } catch(e){}
-            try { renderHist(); } catch(e){}
-            try { renderMonthly(); } catch(e){}
-            try { renderQuarterly(); } catch(e){}
-            try { renderAnnual(); } catch(e){}
-            try { updateLeaderboardStats(); } catch(e){}
-          }, 300);
-        }).catch(function(e){
-          setSyncStatus('error');
-          toast('\u26a0 Erreur import: ' + e.message, true);
-        });
+        // Vérification mot de passe avant import
+        var _n = newTrades, _c = newCFG;
+        openPwdModal({
+          icon: '⬆', color: 'gold', title: 'Importer ' + _n.length + ' trades',
+          label: 'Cela remplacera toutes tes données actuelles.',
+          btnText: '⬆ Importer',
+          onSuccess: function() {
+            if(!FIREBASE_OK || !db){ toast('\u26a0 Firebase indisponible — import impossible.', true); return; }
+            setSyncStatus('syncing');
+            fsTradesRef().get().then(function(snap){
+              var batch = db.batch();
+              snap.forEach(function(d){ batch.delete(d.ref); });
+              return batch.commit();
+            }).then(function(){
+              var batches = [];
+              for(var i=0; i<_n.length; i+=400){
+                var batch = db.batch();
+                _n.slice(i,i+400).forEach(function(t){ batch.set(fsTradesRef().doc(String(t.id)), t); });
+                batches.push(batch.commit());
+              }
+              var p2 = Object.keys(_c).length ? fsCfgRef().set({cfg: _c}) : Promise.resolve();
+              return Promise.all(batches.concat([p2]));
+            }).then(function(){
+              T = _n.slice().sort(function(a,b){ return b.id - a.id; });
+              if(Object.keys(_c).length) CFG = _c;
+              document.getElementById('hdr-tc').textContent = T.length;
+              XYR = new Date().getFullYear();
+              renderXLS();
+              setSyncStatus('ok');
+              toast('\u2713 Import Excel réussi — ' + T.length + ' trades chargés !');
+              chartsReady = false;
+              setTimeout(function(){
+                try { initCharts(); } catch(e){}
+                try { renderDash(); } catch(e){}
+                try { renderHist(); } catch(e){}
+                try { renderMonthly(); } catch(e){}
+                try { renderQuarterly(); } catch(e){}
+                try { renderAnnual(); } catch(e){}
+                try { updateLeaderboardStats(); } catch(e){}
+              }, 300);
+            }).catch(function(e){
+              setSyncStatus('error');
+              toast('\u26a0 Erreur import: ' + e.message, true);
+            });
+          } // fin onSuccess
+        }); // fin openPwdModal
       } catch(err) {
         console.error(err);
         toast('\u26a0 Fichier invalide: ' + err.message, true);
@@ -3393,51 +3527,183 @@ function importJSON() {
   input.click();
 }
 function clearAll(){
-  if(!confirm('Effacer TOUTES les données et repartir de zéro ?'))return;
-  fsClearAll();
-  T=[];CFG={};
-  document.getElementById('hdr-tc').textContent=0;
-  XYR=new Date().getFullYear();
-  renderXLS();
-  toast('Données effacées. Prêt pour vos trades !', false, 'info');
+  openPwdModal({
+    icon: '⚠', color: 'red', title: 'Effacer toutes les données',
+    label: 'Toutes tes données seront supprimées définitivement.',
+    btnText: '⚠ Tout effacer',
+    onSuccess: function() {
+      fsClearAll();
+      T=[];CFG={};
+      document.getElementById('hdr-tc').textContent=0;
+      XYR=new Date().getFullYear();
+      renderXLS();
+      toast('Données effacées. Prêt pour vos trades !', false, 'info');
+    }
+  });
 }
 
-function clearMonth(moKey, mo){
-  var M3=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-  var label = M3[mo] + ' ' + moKey.split('-')[0];
-  if(!confirm('Effacer tous les trades de '+label+' ?')) return;
-  // Supprimer de Firebase
-  if(!isDemo() && CURRENT_USER && FIREBASE_OK && db){
-    setSyncStatus('syncing');
-    fsTradesRef().get().then(function(snap){
-      var batch = db.batch();
-      snap.forEach(function(d){
-        var data = d.data();
-        if(data.date && data.date.startsWith(moKey)) batch.delete(d.ref);
-      });
-      return batch.commit();
-    }).then(function(){
-      setSyncStatus('ok');
-      updateLeaderboardStats();
-    }).catch(function(e){
-      setSyncStatus('error');
-      toast('⚠ Erreur: '+e.message, true);
-    });
+// ══════════════════════════════════════════════════════
+// ── SYSTÈME MODAL MOT DE PASSE (générique) ──
+// ══════════════════════════════════════════════════════
+var _pwdCallback        = null;  // fonction appelée si mot de passe OK
+var _pendingClearMoKey  = null;
+var _pendingClearMo     = null;
+var CFG_UNLOCKED        = {};    // moKeys déverrouillés pour édition
+
+// Ouvre le modal avec config dynamique
+function openPwdModal(opts) {
+  // opts: { icon, title, label, btnText, onSuccess, color }
+  // color: 'red' (défaut destructif), 'gold' (modification), 'green' (déverrouillage)
+  var colors = {
+    red:   { border:'rgba(255,0,0,.35)',   btn:'linear-gradient(135deg,#cc2222,#881111)', glow:'rgba(255,0,0,.3)',   labelColor:'rgba(255,80,80,.7)' },
+    gold:  { border:'rgba(201,168,76,.4)', btn:'linear-gradient(135deg,#b8922a,#7a5e16)', glow:'rgba(201,168,76,.3)', labelColor:'rgba(201,168,76,.7)' },
+    green: { border:'rgba(0,255,0,.25)',   btn:'linear-gradient(135deg,#00aa00,#006600)', glow:'rgba(0,255,0,.25)',  labelColor:'rgba(0,200,80,.7)' }
+  };
+  var c = colors[opts.color] || colors.red;
+  var box = document.querySelector('#pwd-confirm-ovl > div');
+  if(box) {
+    box.style.borderColor = c.border;
+    box.querySelector('div:first-child').style.background =
+      'linear-gradient(90deg,transparent,'+c.border+',transparent)';
   }
-  // Supprimer du tableau local
-  T = T.filter(function(t){ return t.moKey !== moKey; });
-  document.getElementById('hdr-tc').textContent = T.length;
+  var btn = document.getElementById('pwd-confirm-btn');
+  btn.style.background  = c.btn;
+  btn.style.boxShadow   = '0 0 12px '+c.glow;
+  document.getElementById('pwd-confirm-label').style.color = c.labelColor;
+  document.getElementById('pwd-confirm-icon').textContent  = opts.icon  || '🔒';
+  document.getElementById('pwd-confirm-title').textContent = opts.title || 'Action protégée';
+  document.getElementById('pwd-confirm-label').textContent = opts.label || '';
+  btn.textContent   = opts.btnText || 'Confirmer';
+  btn.disabled      = false;
+  document.getElementById('pwd-confirm-err').style.display = 'none';
+  document.getElementById('pwd-confirm-input').value       = '';
+  _pwdCallback = opts.onSuccess || null;
+  var ovl = document.getElementById('pwd-confirm-ovl');
+  ovl.style.display = 'flex';
+  setTimeout(function(){ document.getElementById('pwd-confirm-input').focus(); }, 80);
+}
+
+function closePwdConfirm() {
+  document.getElementById('pwd-confirm-ovl').style.display = 'none';
+  _pwdCallback       = null;
+  _pendingClearMoKey = null;
+  _pendingClearMo    = null;
+}
+
+// Vérification mot de passe puis exécution du callback
+function doPwdConfirm() {
+  var p     = document.getElementById('pwd-confirm-input').value;
+  var errEl = document.getElementById('pwd-confirm-err');
+  var btn   = document.getElementById('pwd-confirm-btn');
+  if (!p) { errEl.style.display='block'; errEl.textContent='⚠ Saisis ton mot de passe.'; return; }
+
+  errEl.style.display = 'none';
+  var origText = btn.textContent;
+  btn.textContent = '⟳ Vérification...';
+  btn.disabled = true;
+
+  function _onSuccess() {
+    var cb = _pwdCallback; // Sauvegarder AVANT closePwdConfirm qui le remet à null
+    closePwdConfirm();
+    if (cb) cb();
+  }
+  function _onFail() {
+    btn.textContent = origText;
+    btn.disabled    = false;
+    errEl.style.display  = 'block';
+    errEl.textContent    = '⚠ Mot de passe incorrect.';
+    document.getElementById('pwd-confirm-input').value = '';
+    document.getElementById('pwd-confirm-input').focus();
+  }
+
+  // 1. Admins hardcodés
+  var adminMatch = ADMINS.find(function(a){ return CURRENT_USER === a.user && p === a.pass; });
+  if (adminMatch) { _onSuccess(); return; }
+
+  // 2. Firestore (hash SHA-256)
+  if (!FIREBASE_OK || !db) { _onFail(); return; }
+  sha256(p).then(function(hash){
+    return fsUserRef(CURRENT_USER).get().then(function(doc){
+      if (!doc.exists || hash !== doc.data().passHash) _onFail();
+      else _onSuccess();
+    });
+  }).catch(function(){ _onFail(); });
+}
+
+// ── CLEAR MONTH ──
+function clearMonth(moKey, mo) {
+  _pendingClearMoKey = moKey;
+  _pendingClearMo    = mo;
+  var M3    = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  var label = M3[mo] + ' ' + moKey.split('-')[0];
+  openPwdModal({
+    icon:    '🗑',
+    color:   'red',
+    title:   'Vider le mois',
+    label:   'Tu vas effacer tous les trades de ' + label + '.',
+    btnText: '🗑 Effacer',
+    onSuccess: function() {
+      var mk = _pendingClearMoKey, m = _pendingClearMo;
+      var lb = M3[m] + ' ' + mk.split('-')[0];
+      if (!isDemo() && CURRENT_USER && FIREBASE_OK && db) {
+        setSyncStatus('syncing');
+        fsTradesRef().get().then(function(snap){
+          var batch = db.batch();
+          snap.forEach(function(d){
+            var data = d.data();
+            if (data.date && data.date.startsWith(mk)) batch.delete(d.ref);
+          });
+          return batch.commit();
+        }).then(function(){ setSyncStatus('ok'); updateLeaderboardStats(); })
+          .catch(function(e){ setSyncStatus('error'); toast('⚠ Erreur: '+e.message, true); });
+      }
+      T = T.filter(function(t){ return t.moKey !== mk; });
+      document.getElementById('hdr-tc').textContent = T.length;
+      renderXLS();
+      toast('Trades de '+lb+' effacés.', false, 'info');
+    }
+  });
+}
+
+// ── UNLOCK CFG (balance + risque) ──
+function unlockCfg(moKey, mo) {
+  var M3    = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  var label = M3[mo] + ' ' + moKey.split('-')[0];
+  openPwdModal({
+    icon:    '🔓',
+    color:   'green',
+    title:   'Modifier les paramètres',
+    label:   'Déverrouiller Balance & Risque % de ' + label + '.',
+    btnText: '🔓 Déverrouiller',
+    onSuccess: function() {
+      CFG_UNLOCKED[moKey] = true;
+      renderXLS();
+      toast('🔓 Paramètres de ' + label + ' déverrouillés — 5s pour modifier.', false, 'info');
+    }
+  });
+}
+
+function relockCfg(moKey, mo) {
+  clearTimeout(onCfgChange._relock);
+  clearInterval(onCfgChange._countdown);
+  delete CFG_UNLOCKED[moKey];
   renderXLS();
-  toast('Trades de '+label+' effacés.', false, 'info');
+  toast('🔒 Re-verrouillé.', false, 'info');
 }
 
 function resetData(){
-  if(!confirm('Effacer TOUTES les données et régénérer les trades de test ?'))return;
-  T=[];
-  seed();
-  document.getElementById('hdr-tc').textContent=T.length;
-  XYR=new Date().getFullYear();
-  renderXLS();toast(T.length+' trades de test générés !');
+  openPwdModal({
+    icon: '⊞', color: 'gold', title: 'Charger données de test',
+    label: 'Cela remplacera toutes tes données par des trades de démonstration.',
+    btnText: '⊞ Charger démo',
+    onSuccess: function() {
+      T=[];
+      seed();
+      document.getElementById('hdr-tc').textContent=T.length;
+      XYR=new Date().getFullYear();
+      renderXLS(); toast(T.length+' trades de test générés !');
+    }
+  });
 }
 
 // ── CLICK ANIMATION SYSTEM ──
@@ -3731,8 +3997,16 @@ function loadAdminCoupons(){
 }
 
 function deleteCoupon(code){
-  if(!confirm('Supprimer le coupon "'+code+'" ?')) return;
-  fsCouponsRef().doc(code).delete().then(function(){ loadAdminCoupons(); toast('Coupon supprimé.'); }).catch(function(e){ toast('\u26a0 '+e.message,true); });
+  openPwdModal({
+    icon: '×', color: 'red', title: 'Supprimer le coupon',
+    label: 'Le coupon "' + code + '" sera définitivement supprimé.',
+    btnText: '× Supprimer',
+    onSuccess: function() {
+      fsCouponsRef().doc(code).delete()
+        .then(function(){ loadAdminCoupons(); toast('Coupon supprimé.'); })
+        .catch(function(e){ toast('\u26a0 '+e.message, true); });
+    }
+  });
 }
 
 function switchAdminTab(tab){
@@ -3867,23 +4141,27 @@ function calcTrialEnds(){
 
 // ── RÉINITIALISER TOUS LES ACCÈS ──
 function resetAllUsersAccess(){
-  if(!confirm('ATTENTION !\n\nCela va expirer l\'accès de TOUS les utilisateurs.\nIls devront entrer un nouveau coupon à la prochaine connexion.\n\nConfirmer ?')) return;
-  if(!db){ toast('\u26a0 Firebase indisponible.',true); return; }
-  var okEl = document.getElementById('cfg-reset-ok');
-  fsUsersRef().get().then(function(snap){
-    if(snap.empty){ toast('Aucun utilisateur à réinitialiser.', false, 'info'); return; }
-    var batch = db.batch();
-    snap.forEach(function(d){
-      batch.update(d.ref, { accessUntil: 0, trialEnds: 0 });
-    });
-    return batch.commit();
-  }).then(function(){
-    okEl.textContent = '\u2713 Accès réinitialisé pour tous les utilisateurs.';
-    okEl.style.display = 'block';
-    setTimeout(function(){ okEl.style.display='none'; }, 4000);
-    loadAdminUsers();
-    toast('\u2713 Tous les accès ont été réinitialisés.');
-  }).catch(function(e){ toast('\u26a0 Erreur: '+e.message, true); });
+  openPwdModal({
+    icon: '⚠', color: 'red', title: 'Réinitialiser tous les accès',
+    label: 'Tous les utilisateurs devront entrer un nouveau coupon à la prochaine connexion.',
+    btnText: '⚠ Confirmer',
+    onSuccess: function() {
+      if(!db){ toast('\u26a0 Firebase indisponible.',true); return; }
+      var okEl = document.getElementById('cfg-reset-ok');
+      fsUsersRef().get().then(function(snap){
+        if(snap.empty){ toast('Aucun utilisateur à réinitialiser.', false, 'info'); return; }
+        var batch = db.batch();
+        snap.forEach(function(d){ batch.update(d.ref, { accessUntil: 0, trialEnds: 0 }); });
+        return batch.commit();
+      }).then(function(){
+        okEl.textContent = '\u2713 Accès réinitialisé pour tous les utilisateurs.';
+        okEl.style.display = 'block';
+        setTimeout(function(){ okEl.style.display='none'; }, 4000);
+        loadAdminUsers();
+        toast('\u2713 Tous les accès ont été réinitialisés.');
+      }).catch(function(e){ toast('\u26a0 Erreur: '+e.message, true); });
+    }
+  });
 }
 
 // ── HASH SHA-256 (mot de passe stocké hashé dans Firestore) ──
@@ -4608,17 +4886,23 @@ function adminCreateUser(){
 }
 
 function adminDeleteUser(username){
-  if(!confirm('Supprimer "' + username + '" et toutes ses données ?')) return;
-  fsUserRef(username).delete().then(function(){
-    return db.collection('smf_recorder').doc(username).collection('trades').get().then(function(snap){
-      var batch = db.batch();
-      snap.forEach(function(d){ batch.delete(d.ref); });
-      return batch.commit();
-    });
-  }).then(function(){
-    toast('Utilisateur "' + username + '" supprimé.');
-    loadAdminUsers();
-  }).catch(function(e){ toast('Erreur: ' + e.message, true); });
+  openPwdModal({
+    icon: '🗑', color: 'red', title: 'Supprimer l\'utilisateur',
+    label: '"' + username + '" et toutes ses données seront supprimés définitivement.',
+    btnText: '🗑 Supprimer',
+    onSuccess: function() {
+      fsUserRef(username).delete().then(function(){
+        return db.collection('smf_recorder').doc(username).collection('trades').get().then(function(snap){
+          var batch = db.batch();
+          snap.forEach(function(d){ batch.delete(d.ref); });
+          return batch.commit();
+        });
+      }).then(function(){
+        toast('Utilisateur "' + username + '" supprimé.');
+        loadAdminUsers();
+      }).catch(function(e){ toast('Erreur: ' + e.message, true); });
+    }
+  });
 }
 
 
@@ -4774,6 +5058,18 @@ function openAuthModal(tab){
 function closeAuthModal(){
   document.getElementById('auth-modal').classList.remove('show');
 }
+// Fermer modal mot de passe en cliquant sur le fond ou ESC
+document.addEventListener('click', function(e){
+  var ovl = document.getElementById('pwd-confirm-ovl');
+  if(e.target === ovl) closePwdConfirm();
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    var ovl = document.getElementById('pwd-confirm-ovl');
+    if(ovl && ovl.style.display === 'flex') closePwdConfirm();
+  }
+});
+
 // Fermer modal en cliquant sur le fond
 document.addEventListener('click', function(e){
   if(e.target && e.target.id === 'auth-modal') closeAuthModal();
@@ -4793,10 +5089,16 @@ window.onload=function(){
   document.getElementById('hdr-d').textContent=
     new Date().toLocaleDateString('fr-FR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}).toUpperCase();
   document.getElementById('f-date').valueAsDate=new Date();
-  document.getElementById('pg-input').style.display='flex';
 
   loadUserData();
   applyUserUI();
+
+  // Lire le hash de l'URL pour ouvrir le bon onglet au démarrage
+  (function(){
+    var hash = window.location.hash.replace('#', '') || '/trades';
+    var startPage = HASH_REVERSE[hash] || 'input';
+    sw(startPage, true);
+  })();
 
   // Global click animations
   document.addEventListener('click', function(e) {
